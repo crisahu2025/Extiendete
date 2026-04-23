@@ -663,6 +663,47 @@
       display: inline-block;
       vertical-align: middle;
     }
+
+    /* ===== MOBILE ONLY: centrado de tarjetas y controles ===== */
+    @media (max-width: 767px) {
+      .ticket-grid {
+        justify-items: center;
+      }
+
+      .ticket-card {
+        width: 100%;
+        max-width: 320px;
+      }
+
+      .quantity-box {
+        align-items: center;
+        text-align: center;
+      }
+
+      .quantity-box > div:first-child {
+        width: 100%;
+        text-align: center;
+      }
+
+      .qty-controls {
+        justify-content: center;
+      }
+
+      .total-bar {
+        align-items: center;
+        text-align: center;
+      }
+
+      .total-bar > div {
+        width: 100%;
+        text-align: center;
+      }
+
+      .total-bar .btn {
+        width: 100%;
+      }
+    }
+    /* ======================================================= */
   </style>
 </head>
 
