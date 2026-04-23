@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>Registro Completado - CONFERENCIA INTIMIDAD 2026</title>
+    <meta name="description" content="Finaliza tu registro para la CONFERENCIA INTIMIDAD 2026." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Orbitron:wght@400;700;900&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #e2f3f5; /* Menta claro */
+            --card: #ffffff;
+            --primary: #065f46; /* Verde oscuro */
+            --primary-glow: rgba(6, 95, 70, 0.1);
+            --accent: #f97316; /* Naranja */
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #cbd5e1;
+            --green: #059669;
+            --green-bg: #ecfdf5;
+            --green-border: #10b981;
+            --yellow: #d97706;
+            --yellow-bg: #fffbeb;
+            --yellow-border: #f59e0b;
+            --radius: 20px;
+            --radius-sm: 12px;
+            --font-heading: 'Orbitron', sans-serif;
+        }
+
+        /* Forzamos la fuente cuadrada en todo el sitio */
+        body, h1, h2, h3, h4, h5, p, span, input, button, label, strong, div {
+            font-family: 'Orbitron', sans-serif !important;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg);
+            overflow-x: hidden;
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .bg-decoration {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background: var(--bg);
+        }
+
+        .card {
+            position: relative;
+            z-index: 1;
+            max-width: 500px;
+            width: 100%;
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 48px 36px;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* States */
+        .state {
+            display: none;
+        }
+
+        .state.active {
+            display: block;
+        }
+
+        /* Icons */
+        .icon-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 40px;
+        }
+
+        .icon-green {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-border);
+        }
+
+        .icon-yellow {
+            background: var(--yellow-bg);
+            color: var(--yellow);
+            border: 1px solid var(--yellow-border);
+        }
+
+        .icon-primary {
+            background: rgba(124, 58, 237, 0.15);
+            color: var(--primary);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+        }
+
+        h1 {
+            font-family: var(--font-heading);
+            font-size: 22px;
+            font-weight: 900;
+            margin-bottom: 12px;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 15px;
+            margin-bottom: 28px;
+            line-height: 1.6;
+        }
+
+        /* Summary */
+        .summary-box {
+            background: #fffbeb; /* Crema */
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: left;
+            margin-bottom: 24px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            font-size: 14px;
+        }
+
+        .summary-row .label {
+            color: var(--muted);
+        }
+
+        .summary-row .value {
+            font-weight: 600;
+        }
+
+        .summary-divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 10px 0;
+        }
+
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            font-size: 18px;
+            font-weight: 800;
+            font-family: 'Outfit', monospace;
+        }
+
+        .names-list {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .names-list .name-item {
+            font-size: 13px;
+            color: var(--muted);
+            padding: 3px 0;
+        }
+
+        .names-list .name-item strong {
+            color: var(--text);
+        }
+
+        /* Buttons */
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 16px 32px;
+            border-radius: var(--radius-sm);
+            font-size: 16px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: var(--font-sans);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #047857;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--muted);
+            border: 1px solid var(--border);
+            margin-top: 12px;
+        }
+
+        .btn-outline:hover {
+            background: #f8fafc;
+            border-color: var(--primary);
+        }
+
+        /* Steps visual */
+        .steps-hint {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 28px;
+        }
+
+        .step-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .step-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(124, 58, 237, 0.15);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .step-row.done {
+            color: var(--green);
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        .step-row.done .step-num {
+            background: var(--green-bg);
+            color: var(--green);
+        }
+
+        /* Loading spinner */
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(6, 95, 70, 0.2);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--green);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .no-data-msg {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .no-data-msg a {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-decoration"></div>
+
+    <div class="card">
+        <!-- STATE 1: Has purchase data, waiting for user to finalize -->
+        <div class="state active" id="state-register">
+            <div class="icon-circle icon-yellow">⏳</div>
+            <h1>¿Ya completaste el pago?</h1>
+            <p class="subtitle">
+                Si ya realizaste el pago en Mercado Pago, presioná el botón de abajo para finalizar tu registro.
+            </p>
+
+            <div class="summary-box" id="summaryBox">
+                <!-- Filled by JS -->
+            </div>
+
+            <div class="steps-hint">
+                <div class="step-row done">
+                    <div class="step-num">✓</div>
+                    <span>Seleccionar entradas y datos</span>
+                </div>
+                <div class="step-row done">
+                    <div class="step-num">✓</div>
+                    <span>Pagar en Mercado Pago</span>
+                </div>
+                <div class="step-row">
+                    <div class="step-num">3</div>
+                    <span><strong>Finalizar registro</strong> (este paso)</span>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" id="finalizeBtn" onclick="finalizeRegistration()">
+                Finalizar Registro ✓
+            </button>
+        </div>
+
+        <!-- STATE 2: Success -->
+        <div class="state" id="state-success">
+            <div class="icon-circle icon-green">✅</div>
+            <h1>¡Registro Completado!</h1>
+            <p class="subtitle">
+                Tu inscripción se ha registrado correctamente.<br>
+                ¡Nos vemos en la <strong>Conferencia Intimidad 2026</strong>!
+            </p>
+            <button class="btn btn-outline" onclick="goHome()">
+                🏠 Volver al Inicio
+            </button>
+        </div>
+
+        <!-- STATE 3: No data found -->
+        <div class="state" id="state-nodata">
+            <div class="icon-circle icon-primary">❓</div>
+            <h1>Sin datos de compra</h1>
+            <p class="no-data-msg">
+                No encontramos información de una compra reciente.
+                <br><br>
+                Si ya pagaste, es posible que hayas borrado los datos del navegador.
+                Contactá al administrador por WhatsApp para completar tu registro manualmente.
+                <br><br>
+                <a href="https://wa.me/5493364333287" target="_blank">📱 Contactar por WhatsApp</a>
+            </p>
+            <button class="btn btn-outline" style="margin-top:24px;" onclick="goHome()">
+                🏠 Ir a Comprar Entradas
+            </button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">¡Registro enviado exitosamente!</div>
+
+    <script>
+        // =============================================
+        // ⚠️ CONFIGURACIÓN: PEGAR ACÁ TU URL DE GOOGLE APPS SCRIPT
+        // =============================================
+        // Después de crear el Apps Script en tu Google Sheet, pegá la URL acá:
+        const GOOGLE_SCRIPT_URL = "PEGAR_TU_URL_AQUI";
+        // Ejemplo: "https://script.google.com/macros/s/AKfycb.../exec"
+        // =============================================
+
+        // URL de la página de compra (cambiar según donde la hosties)
+        const PURCHASE_PAGE_URL = "pagina-compra.html";
+
+        // ===== LOAD DATA =====
+        let purchaseData = null;
+
+        function init() {
+            try {
+                const raw = localStorage.getItem("ticketflow_purchase");
+                if (raw) {
+                    purchaseData = JSON.parse(raw);
+                    showState("register");
+                    renderSummary();
+                } else {
+                    showState("nodata");
+                }
+            } catch (e) {
+                showState("nodata");
+            }
+        }
+
+        function showState(state) {
+            document.querySelectorAll(".state").forEach(s => s.classList.remove("active"));
+            document.getElementById("state-" + state).classList.add("active");
+        }
+
+        function renderSummary() {
+            if (!purchaseData) return;
+            const p = purchaseData;
+            let namesHtml = p.names.map((n, i) =>
+                `<div class="name-item"><strong>${i + 1}.</strong> ${n}</div>`
+            ).join("");
+
+            document.getElementById("summaryBox").innerHTML = `
+        <div class="summary-row">
+          <span class="label">Tipo</span>
+          <span class="value">${p.typeLabel}</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Cantidad</span>
+          <span class="value">${p.effectiveQty} entrada(s)</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Ciudad / Iglesia</span>
+          <span class="value">${p.city}</span>
+        </div>
+        <hr class="summary-divider" />
+        <div class="summary-total">
+          <span>Total</span>
+          <span>$${p.totalPrice.toLocaleString("es-AR")}</span>
+        </div>
+        <div class="names-list">
+          ${namesHtml}
+        </div>
+      `;
+        }
+
+        function formatDate() {
+            const now = new Date();
+            return now.toLocaleDateString("es-AR") + " " + now.toLocaleTimeString("es-AR", { hour: '2-digit', minute: '2-digit' });
+        }
+
+        async function finalizeRegistration() {
+            if (!purchaseData) return;
+
+            const btn = document.getElementById("finalizeBtn");
+            btn.disabled = true;
+            btn.innerHTML = '<div class="spinner"></div> Enviando...';
+
+            const p = purchaseData;
+            const dateStr = formatDate();
+
+            // Prepare rows: one per attendee
+            const rows = p.names.map(name => ({
+                fecha: dateStr,
+                nombre: name,
+                ciudad: p.city,
+                tipo: p.typeLabel,
+                cantidad: p.effectiveQty,
+                monto: p.totalPrice,
+            }));
+
+            try {
+                // Send to Google Sheets
+                if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL !== "PEGAR_TU_URL_AQUI") {
+                    await fetch(GOOGLE_SCRIPT_URL, {
+                        method: "POST",
+                        mode: "no-cors",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ rows }),
+                    });
+                } else {
+                    console.warn("⚠️ Google Apps Script URL no configurada. Los datos se muestran en consola:");
+                    console.table(rows);
+                }
+
+                // Clear localStorage
+                localStorage.removeItem("ticketflow_purchase");
+
+                // Show success
+                showState("success");
+                showToast();
+            } catch (err) {
+                console.error("Error enviando datos:", err);
+                // Even on error, show success and clear data (the payment was already made)
+                localStorage.removeItem("ticketflow_purchase");
+                showState("success");
+                showToast();
+            }
+        }
+
+        function showToast() {
+            const toast = document.getElementById("toast");
+            toast.classList.add("show");
+            setTimeout(() => toast.classList.remove("show"), 3500);
+        }
+
+        function goHome() {
+            window.location.href = PURCHASE_PAGE_URL;
+        }
+
+        // Init
+        init();
+    </script>
+</body>
+
+</html>

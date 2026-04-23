@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+  <title>CONFERENCIA INTIMIDAD 2026 - Entradas</title>
+  <meta name="description"
+    content="Adquiere tus entradas para la CONFERENCIA INTIMIDAD 2026. Venta oficial de entradas online." />
+  <meta property="og:title" content="CONFERENCIA INTIMIDAD 2026 - Entradas" />
+  <meta property="og:description" content="Adquiere tus entradas para la CONFERENCIA INTIMIDAD 2026." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Orbitron:wght@400;700;900&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #e2f3f5; /* Menta claro */
+      --card: #ffffff;
+      --primary: #065f46; /* Verde oscuro */
+      --primary-glow: rgba(6, 95, 70, 0.1);
+      --accent: #f97316; /* Naranja EXTIENDETE */
+      --accent-glow: rgba(249, 115, 22, 0.2);
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #cbd5e1;
+      --border-hover: #f97316;
+      --destructive: #f43f5e;
+      --mp-blue: #009EE3;
+      --mp-blue-hover: #008ED0;
+      --radius: 20px;
+      --radius-sm: 12px;
+      --font-sans: 'Inter', sans-serif;
+      --font-heading: 'Orbitron', sans-serif;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Forzamos la fuente en todos los elementos de texto */
+    body, h1, h2, h3, h4, h5, p, span, input, button, label, select, textarea {
+      font-family: 'Orbitron', sans-serif !important;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Background decoration */
+    .bg-decoration {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background: var(--bg);
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 48px 24px 100px;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 48px;
+      animation: fadeInDown 0.6s ease;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      background: rgba(124, 58, 237, 0.1);
+      color: var(--primary);
+      border: 1px solid rgba(124, 58, 237, 0.2);
+      backdrop-filter: blur(8px);
+      margin-bottom: 16px;
+      letter-spacing: 1px;
+    }
+
+    .header h1 {
+      font-family: var(--font-heading);
+      font-size: clamp(28px, 5vw, 52px);
+      font-weight: 900;
+      color: var(--accent);
+      letter-spacing: 2px;
+      line-height: 1.1;
+      margin-top: 10px;
+    }
+
+    .header p {
+      color: var(--primary);
+      font-weight: 700;
+      margin-top: 8px;
+      font-size: 16px;
+    }
+
+    /* Main Card */
+    .main-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Progress Bar */
+    .progress-track {
+      height: 4px;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      box-shadow: 0 0 15px var(--primary-glow);
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .card-body {
+      padding: 32px;
+    }
+
+    @media (min-width: 768px) {
+      .card-body {
+        padding: 48px;
+      }
+    }
+
+    /* Top bar */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .top-bar .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .top-bar .back-btn:hover {
+      color: var(--text);
+    }
+
+    /* Step titles */
+    .step-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      font-family: var(--font-heading);
+    }
+
+    /* Step sections */
+    .step-section {
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .step-section.active {
+      display: block;
+    }
+
+    /* Ticket type cards */
+    .ticket-grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 768px) {
+      .ticket-grid {
+        grid-template-columns: repeat(2, 280px);
+        justify-content: center;
+      }
+    }
+
+    .ticket-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 20px;
+      border-radius: var(--radius);
+      border: 2px solid var(--border);
+      background: #fffbeb; /* Color crema */
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .ticket-card:hover {
+      border-color: var(--accent);
+      transform: scale(1.02);
+    }
+
+    .ticket-card.selected {
+      border-color: var(--accent);
+      box-shadow: 0 10px 25px var(--accent-glow);
+    }
+
+    .ticket-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      font-size: 22px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--muted);
+      transition: all 0.3s;
+    }
+
+    .ticket-card.selected .ticket-icon {
+      background: var(--primary);
+      color: white;
+    }
+
+    .ticket-card h3 {
+      font-size: 16px;
+      font-weight: 900;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .ticket-card .desc {
+      font-size: 11px;
+      color: var(--muted);
+      flex-grow: 1;
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+
+    .ticket-card .price {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 24px;
+      font-weight: 900;
+      color: #1e293b;
+      margin-top: 10px;
+    }
+
+    .ticket-card .check {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      color: var(--primary);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .ticket-card.selected .check {
+      opacity: 1;
+    }
+
+    /* Quantity selector */
+    .quantity-box {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: var(--radius);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      border: 1px solid var(--border);
+      margin-top: 24px;
+    }
+
+    @media (min-width: 768px) {
+      .quantity-box {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+
+    .quantity-box h4 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .quantity-box .sub {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .qty-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: #f1f5f9; /* Gris muy claro */
+      padding: 8px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+
+    .qty-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .qty-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .qty-btn:not(:disabled):hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .qty-value {
+      font-size: 28px;
+      font-family: 'Outfit', monospace;
+      font-weight: 800;
+      width: 48px;
+      text-align: center;
+    }
+
+    /* Total bar */
+    .total-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding-top: 24px;
+      margin-top: 24px;
+      border-top: 1px solid var(--border);
+      align-items: center;
+    }
+
+    @media (min-width: 768px) {
+      .total-bar {
+        flex-direction: row;
+        justify-content: space-between;
+      }
+    }
+
+    .total-label {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .total-value {
+      font-size: 32px;
+      font-weight: 800;
+      font-family: 'Outfit', monospace;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 16px 32px;
+      border-radius: var(--radius-sm);
+      font-size: 16px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: var(--font-sans);
+      width: 100%;
+    }
+
+    @media (min-width: 768px) {
+      .btn {
+        width: auto;
+      }
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #6d28d9;
+    }
+
+    .btn-mp {
+      background: var(--mp-blue);
+      color: white;
+    }
+
+    .btn-mp:hover {
+      background: var(--mp-blue-hover);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover {
+      color: white;
+      border-color: var(--border-hover);
+    }
+
+    /* Form */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-input {
+      width: 100%;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 18px;
+      font-size: 16px;
+      color: #1e293b;
+      outline: none;
+      transition: all 0.2s;
+      font-family: var(--font-sans);
+    }
+
+    .form-input:focus {
+      border-color: rgba(124, 58, 237, 0.5);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .form-input.error {
+      border-color: var(--destructive);
+    }
+
+    .error-text {
+      color: var(--destructive);
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    .form-section {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 24px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    .form-section-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .form-section-sub {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      font-style: italic;
+      margin-bottom: 20px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 14px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: var(--font-sans);
+      transition: color 0.2s;
+    }
+
+    .back-link:hover {
+      color: white;
+    }
+
+    /* Payment Summary */
+    .summary-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 32px;
+      background: rgba(59, 130, 246, 0.15);
+      color: #3b82f6;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .summary-card {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 24px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      text-align: left;
+      margin-bottom: 16px;
+    }
+
+    .summary-card .city {
+      font-size: 14px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .summary-card .entries {
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    .summary-card .entries strong {
+      color: white;
+    }
+
+    .summary-card .total-line {
+      border-top: 1px solid var(--border);
+      margin-top: 12px;
+      padding-top: 12px;
+      font-size: 18px;
+      font-weight: 800;
+      font-family: 'Outfit', monospace;
+    }
+
+    .summary-names {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .summary-names .name-item {
+      font-size: 13px;
+      color: var(--muted);
+      padding: 4px 0;
+    }
+
+    .summary-names .name-item strong {
+      color: var(--text);
+    }
+
+    .center {
+      text-align: center;
+    }
+
+    .mp-note {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .btn-container {
+      max-width: 380px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .edit-link {
+      display: block;
+      text-align: center;
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 12px;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: var(--font-sans);
+      transition: color 0.2s;
+    }
+
+    .edit-link:hover {
+      color: white;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* SVG icons inline */
+    .icon {
+      width: 18px;
+      height: 18px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg-decoration"></div>
+
+  <div class="container">
+    <div class="header">
+      <!-- Badge eliminado -->
+      <h1>EXTIENDETE 2026</h1>
+      <p>Es momento de extenderte en Dios</p>
+    </div>
+
+    <div class="main-card">
+      <div class="progress-track">
+        <div class="progress-fill" id="progressBar" style="width: 33%"></div>
+      </div>
+
+      <div class="card-body">
+        <div class="top-bar">
+          <button class="back-btn" id="resetBtn" style="display:none" onclick="resetAll()">
+            🏠 Reiniciar compra
+          </button>
+          <div></div>
+        </div>
+
+        <!-- STEP 1: Selection -->
+        <div class="step-section active" id="step-selection">
+          <h2 class="step-title">1. Elige tu entrada</h2>
+
+          <div class="ticket-grid" id="ticketGrid">
+            <div class="ticket-card selected" data-type="individual" onclick="selectType('individual')">
+              <div class="ticket-icon">👤</div>
+              <div class="check">✓</div>
+              <h3>Individual</h3>
+              <p class="desc">Acceso personal al evento online.</p>
+              <div class="price">$30.000</div>
+            </div>
+            <div class="ticket-card" data-type="matrimonio" onclick="selectType('matrimonio')">
+              <div class="ticket-icon">👫</div>
+              <div class="check">✓</div>
+              <h3>Matrimonio</h3>
+              <p class="desc">Entrada especial para parejas casadas.</p>
+              <div class="price">$50.000</div>
+            </div>
+          </div>
+
+          <div class="quantity-box">
+            <div>
+              <h4>Cantidad</h4>
+              <p class="sub" id="qtyHint">Selecciona las unidades.</p>
+            </div>
+            <div class="qty-controls">
+              <button class="qty-btn" id="qtyMinus" onclick="changeQty(-1)">−</button>
+              <span class="qty-value" id="qtyValue">1</span>
+              <button class="qty-btn" id="qtyPlus" onclick="changeQty(1)">+</button>
+            </div>
+          </div>
+
+          <div class="total-bar">
+            <div>
+              <p class="total-label">Total</p>
+              <p class="total-value" id="totalDisplay">$15.000</p>
+            </div>
+            <button class="btn btn-primary" onclick="goToStep('details')">
+              Siguiente ›
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 2: Details -->
+        <div class="step-section" id="step-details">
+          <div style="display:flex; align-items:center; gap:16px; margin-bottom:24px;">
+            <button class="back-link" onclick="goToStep('selection')">← Volver</button>
+            <h2 class="step-title" style="margin-bottom:0">2. Datos del Grupo</h2>
+          </div>
+
+          <form id="detailsForm" onsubmit="submitDetails(event)">
+            <div class="form-section" style="margin-bottom:24px">
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">📍 Nombre de la iglesia a la que asistes</label>
+                <input class="form-input" id="cityInput" placeholder="Ej: Buenos Aires - Iglesia Central" required />
+              </div>
+              <div class="form-group" style="margin-bottom:0; margin-top:16px;">
+                <label class="form-label">👤 Nombre de tu pastor</label>
+                <input class="form-input" id="pastorInput" placeholder="Ej: Pastor Juan" required
+                  style="border-radius: var(--radius-sm);" />
+              </div>
+            </div>
+
+            <div style="margin-bottom:24px">
+              <p class="form-section-title">Nombres de los Asistentes</p>
+              <p class="form-section-sub">Asegúrate de agregar a todas las personas del grupo debajo:</p>
+              <div id="namesContainer"></div>
+            </div>
+
+            <div style="padding-top:16px; border-top:1px solid var(--border); display:flex; justify-content:flex-end">
+              <button type="submit" class="btn btn-primary"
+                style="padding:20px 48px; border-radius:var(--radius); font-size:16px; box-shadow: 0 8px 24px var(--primary-glow);">
+                Ver Resumen ›
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- STEP 3: Payment -->
+        <div class="step-section" id="step-payment">
+          <div class="center" style="padding:16px 0;">
+            <div class="summary-icon">🔗</div>
+            <h2 class="step-title">Resumen de Compra</h2>
+
+            <div class="summary-card" id="summaryContent"></div>
+
+            <p class="mp-note">Al hacer clic en el botón, serás redirigido a Mercado Pago para completar tu pago de
+              forma segura.</p>
+
+            <div class="btn-container">
+              <button class="btn btn-mp" onclick="goToPayment()">
+                Pagar con Mercado Pago 🔗
+              </button>
+            </div>
+            <button class="edit-link" onclick="goToStep('details')">Editar datos</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== CONFIGURATION =====
+    const TICKET_TYPES = {
+      individual: { label: "Individual", price: 30000, maxQty: 5, promo: false },
+      matrimonio: { label: "Matrimonio", price: 50000, maxQty: 1, promo: false },
+    };
+
+    const INDIVIDUAL_LINKS = {
+      1: "https://mpago.la/1aqR7n8",
+      2: "https://mpago.la/2KNHsVG",
+      3: "https://mpago.la/1tWo9B3",
+      4: "https://mpago.la/2U2PLye",
+      5: "https://mpago.la/1EQV4U5",
+    };
+    const MATRIMONIO_LINK = "https://mpago.la/1s2o6kf";
+    const EXTENSIONES_LINKS = {
+      1: "https://mpago.la/2U8LpvC",
+      2: "https://mpago.la/2JYJ3HF",
+      3: "https://mpago.la/1r2AXU5",
+      4: "https://mpago.la/1mJQTCm",
+      5: "https://mpago.la/26ip1Rk",
+      6: "https://mpago.la/1cpu3aP",
+      7: "https://mpago.la/2HTp2jb",
+      8: "https://mpago.la/1inKMbQ",
+      9: "https://mpago.la/1U8WMTQ",
+      10: "https://mpago.la/2xydo8y",
+    };
+
+    // ===== STATE =====
+    let selectedType = "individual";
+    let quantity = 1;
+    let currentStep = "selection";
+    let formData = null;
+
+    // ===== HELPERS =====
+    function getTicket() { return TICKET_TYPES[selectedType]; }
+    function getEffectiveQty() { return quantity; }
+    function getNameSlots() { return selectedType === "matrimonio" ? 2 : getEffectiveQty(); }
+    function getTotalPrice() { return getTicket().price * quantity; }
+
+    function formatPrice(n) { return "$" + n.toLocaleString("es-AR"); }
+
+    // ===== UI UPDATES =====
+    function updateUI() {
+      // Update ticket cards
+      document.querySelectorAll(".ticket-card").forEach(card => {
+        card.classList.toggle("selected", card.dataset.type === selectedType);
+      });
+
+      // Update quantity
+      document.getElementById("qtyValue").textContent = quantity;
+      document.getElementById("qtyMinus").disabled = quantity <= 1;
+      document.getElementById("qtyPlus").disabled = quantity >= getTicket().maxQty;
+
+      // Update hint
+      const hint = getTicket().promo ? "✨ Compra 10 y recibe 1 gratis!" : "Selecciona las unidades.";
+      document.getElementById("qtyHint").textContent = hint;
+
+      // Update total
+      document.getElementById("totalDisplay").textContent = formatPrice(getTotalPrice());
+
+      // Update progress
+      const pct = currentStep === "selection" ? "33%" : currentStep === "details" ? "66%" : "100%";
+      document.getElementById("progressBar").style.width = pct;
+
+      // Show/hide reset button
+      document.getElementById("resetBtn").style.display = currentStep !== "selection" ? "flex" : "none";
+
+      // Step visibility
+      document.querySelectorAll(".step-section").forEach(s => s.classList.remove("active"));
+      document.getElementById("step-" + currentStep).classList.add("active");
+    }
+
+    function selectType(type) {
+      selectedType = type;
+      quantity = 1;
+      updateUI();
+    }
+
+    function changeQty(delta) {
+      const newQ = quantity + delta;
+      if (newQ < 1 || newQ > getTicket().maxQty) return;
+      quantity = newQ;
+      updateUI();
+    }
+
+    function goToStep(step) {
+      currentStep = step;
+      if (step === "details") renderNameInputs();
+      if (step === "payment") renderSummary();
+      updateUI();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderNameInputs() {
+      const container = document.getElementById("namesContainer");
+      const slots = getNameSlots();
+      container.innerHTML = "";
+      for (let i = 0; i < slots; i++) {
+        const saved = formData?.names?.[i] || "";
+        container.innerHTML += `
+          <div class="form-group">
+            <label class="form-label" style="font-size:10px; letter-spacing:1px;">Persona #${i + 1}</label>
+            <input class="form-input name-input" placeholder="Escribe aquí el nombre completo de la persona #${i + 1}"
+              value="${saved}" required style="padding:18px 24px; font-size:17px;" />
+          </div>
+        `;
+      }
+    }
+
+    function submitDetails(e) {
+      e.preventDefault();
+      const city = document.getElementById("cityInput").value.trim();
+      const pastor = document.getElementById("pastorInput").value.trim();
+      const nameInputs = document.querySelectorAll(".name-input");
+      const names = [];
+      let valid = true;
+
+      nameInputs.forEach(input => {
+        const v = input.value.trim();
+        if (v.length < 3) { input.classList.add("error"); valid = false; }
+        else { input.classList.remove("error"); names.push(v); }
+      });
+
+      if (city.length < 2) {
+        document.getElementById("cityInput").classList.add("error");
+        valid = false;
+      } else {
+        document.getElementById("cityInput").classList.remove("error");
+      }
+
+      if (pastor.length < 2) {
+        document.getElementById("pastorInput").classList.add("error");
+        valid = false;
+      } else {
+        document.getElementById("pastorInput").classList.remove("error");
+      }
+
+      if (!valid) return;
+
+      formData = { city, pastor, names };
+      goToStep("payment");
+    }
+
+    function renderSummary() {
+      if (!formData) return;
+      const ticket = getTicket();
+      let namesHtml = formData.names.map((n, i) =>
+        `<div class="name-item"><strong>${i + 1}.</strong> ${n}</div>`
+      ).join("");
+
+      document.getElementById("summaryContent").innerHTML = `
+        <p class="city">Grupo de ${formData.city}</p>
+        <p class="entries"><strong>${getEffectiveQty()}</strong> entrada(s) <strong>${ticket.label}</strong></p>
+        <div class="summary-names">${namesHtml}</div>
+        <p class="total-line">Total: ${formatPrice(getTotalPrice())}</p>
+      `;
+    }
+
+    async function goToPayment() {
+      // Get payment link
+      let link = "";
+      if (selectedType === "individual") link = INDIVIDUAL_LINKS[quantity];
+      else if (selectedType === "matrimonio") link = MATRIMONIO_LINK;
+
+      if (!link) { alert("Error: link de pago no encontrado."); return; }
+
+      // Save data to localStorage for the post-payment page
+      const purchaseData = {
+        type: selectedType,
+        typeLabel: getTicket().label,
+        quantity: quantity,
+        effectiveQty: getEffectiveQty(),
+        totalPrice: getTotalPrice(),
+        city: formData.city,
+        pastor: formData.pastor,
+        names: formData.names,
+        timestamp: new Date().toISOString(),
+      };
+      localStorage.setItem("ticketflow_purchase", JSON.stringify(purchaseData));
+
+      // --- CAMBIO: Enviar datos a Google Sheets antes de redirigir ---
+      const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyxDF6KlCJneM37Ov1k8XGQi93e0vPsX17RZ1r021qOxyo2z-FFrxqNYBKd0_T6y_Yh/exec"; // URL de Google Apps Script
+      const dateStr = new Date().toLocaleDateString("es-AR") + " " + new Date().toLocaleTimeString("es-AR", { hour: '2-digit', minute: '2-digit' });
+
+      const rows = purchaseData.names.map(name => ({
+        fecha: dateStr,
+        nombre: name,
+        ciudad: purchaseData.city,
+        pastor: purchaseData.pastor,
+        tipo: purchaseData.typeLabel,
+        cantidad: purchaseData.effectiveQty,
+        monto: purchaseData.totalPrice,
+      }));
+
+      try {
+        // Cambiamos el texto del botón temporalmente para indicar que procesa
+        const btn = document.querySelector(".btn-mp");
+        if (btn) {
+          btn.innerHTML = 'Redirigiendo... ⏳';
+          btn.style.pointerEvents = 'none';
+        }
+
+        if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL !== "PEGAR_TU_URL_AQUI") {
+          await fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ rows }),
+          });
+        } else {
+          console.warn("URL de Google Apps Script no configurada. (goToPayment)");
+        }
+      } catch (err) {
+        console.error("Error enviando datos:", err);
+      }
+
+      // Redirect to Mercado Pago (same tab so back_url works)
+      window.location.href = link;
+    }
+
+    function resetAll() {
+      selectedType = "individual";
+      quantity = 1;
+      formData = null;
+      document.getElementById("cityInput").value = "";
+      goToStep("selection");
+    }
+
+    // Init
+    updateUI();
+  </script>
+</body>
+
+</html>
