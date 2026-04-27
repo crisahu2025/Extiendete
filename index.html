@@ -761,12 +761,17 @@
           </div>
 
           <div class="ticket-grid" id="ticketGrid">
-            <div class="ticket-card selected" data-type="individual" onclick="selectType('individual')">
+            <div class="ticket-card" data-type="individual" onclick="selectType('individual')">
               <div class="ticket-icon">👤</div>
               <div class="check">✓</div>
               <h3>Individual</h3>
               <p class="desc">Acceso personal al evento online.</p>
               <div class="price">$30.000</div>
+              <div class="qty-controls" style="margin-top:16px;" onclick="event.stopPropagation()">
+                <button class="qty-btn" onclick="changeQty('individual', -1)">−</button>
+                <span class="qty-value" id="qty-individual">0</span>
+                <button class="qty-btn" onclick="changeQty('individual', 1)">+</button>
+              </div>
             </div>
             <div class="ticket-card" data-type="matrimonio" onclick="selectType('matrimonio')">
               <div class="ticket-icon">👫</div>
@@ -774,20 +779,15 @@
               <h3>Matrimonio</h3>
               <p class="desc">Entrada especial para parejas casadas.</p>
               <div class="price">$50.000</div>
+              <div class="qty-controls" style="margin-top:16px;" onclick="event.stopPropagation()">
+                <button class="qty-btn" onclick="changeQty('matrimonio', -1)">−</button>
+                <span class="qty-value" id="qty-matrimonio">0</span>
+                <button class="qty-btn" onclick="changeQty('matrimonio', 1)">+</button>
+              </div>
             </div>
           </div>
 
-          <div class="quantity-box">
-            <div>
-              <h4>Cantidad</h4>
-              <p class="sub" id="qtyHint">Selecciona las unidades.</p>
-            </div>
-            <div class="qty-controls">
-              <button class="qty-btn" id="qtyMinus" onclick="changeQty(-1)">−</button>
-              <span class="qty-value" id="qtyValue">1</span>
-              <button class="qty-btn" id="qtyPlus" onclick="changeQty(1)">+</button>
-            </div>
-          </div>
+
 
 
 
@@ -916,20 +916,18 @@
       // Update ticket cards
       document.querySelectorAll(".ticket-card").forEach(card => {
         const type = card.dataset.type;
-        const isSelected = quantities[type] > 0;
-        const isActive = activeType === type;
+        const qty = quantities[type];
+        const isSelected = qty > 0;
         card.classList.toggle("selected", isSelected);
-        card.style.borderColor = isActive ? "var(--accent)" : (isSelected ? "var(--primary)" : "var(--border)");
+        
+        // Update internal quantity display
+        const valSpan = card.querySelector(".qty-value");
+        if (valSpan) valSpan.textContent = qty;
+        
+        // Disable minus if 0
+        const minusBtn = card.querySelector(".qty-btn:first-child");
+        if (minusBtn) minusBtn.disabled = qty <= 0;
       });
-
-      // Update quantity selector based on activeType
-      const qty = quantities[activeType];
-      document.getElementById("qtyValue").textContent = qty;
-      document.getElementById("qtyMinus").disabled = qty <= 0;
-      document.getElementById("qtyPlus").disabled = qty >= getTicket(activeType).maxQty;
-
-      // Update hint
-      document.getElementById("qtyHint").textContent = `Editando cantidad para: ${getTicket(activeType).label}`;
 
       // Update total
       const total = getTotalPrice();
@@ -972,16 +970,15 @@
     }
 
     function selectType(type) {
-      activeType = type;
       if (quantities[type] === 0) quantities[type] = 1;
       updateUI();
     }
 
-    function changeQty(delta) {
-      const newQ = quantities[activeType] + delta;
-      if (newQ < 0 || newQ > getTicket(activeType).maxQty) return;
+    function changeQty(type, delta) {
+      const newQ = quantities[type] + delta;
+      if (newQ < 0 || newQ > getTicket(type).maxQty) return;
       
-      quantities[activeType] = newQ;
+      quantities[type] = newQ;
       updateUI();
     }
 
