@@ -26,11 +26,14 @@
     }
 
     :root {
-      --bg: #e2f3f5; /* Menta claro */
+      --bg: #e2f3f5;
+      /* Menta claro */
       --card: #ffffff;
-      --primary: #065f46; /* Verde oscuro */
+      --primary: #065f46;
+      /* Verde oscuro */
       --primary-glow: rgba(6, 95, 70, 0.1);
-      --accent: #f97316; /* Naranja EXTIENDETE */
+      --accent: #f97316;
+      /* Naranja EXTIENDETE */
       --accent-glow: rgba(249, 115, 22, 0.2);
       --text: #1e293b;
       --muted: #64748b;
@@ -50,7 +53,19 @@
     }
 
     /* Forzamos la fuente en todos los elementos de texto */
-    body, h1, h2, h3, h4, h5, p, span, input, button, label, select, textarea {
+    body,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    p,
+    span,
+    input,
+    button,
+    label,
+    select,
+    textarea {
       font-family: 'Orbitron', sans-serif !important;
     }
 
@@ -215,7 +230,8 @@
       padding: 30px 20px;
       border-radius: var(--radius);
       border: 2px solid var(--border);
-      background: #fffbeb; /* Color crema */
+      background: #fffbeb;
+      /* Color crema */
       cursor: pointer;
       transition: all 0.3s ease;
       text-align: center;
@@ -321,7 +337,8 @@
       display: flex;
       align-items: center;
       gap: 16px;
-      background: #f1f5f9; /* Gris muy claro */
+      background: #f1f5f9;
+      /* Gris muy claro */
       padding: 8px;
       border-radius: var(--radius-sm);
       border: 1px solid var(--border);
@@ -681,7 +698,7 @@
         text-align: center;
       }
 
-      .quantity-box > div:first-child {
+      .quantity-box>div:first-child {
         width: 100%;
         text-align: center;
       }
@@ -695,7 +712,7 @@
         text-align: center;
       }
 
-      .total-bar > div {
+      .total-bar>div {
         width: 100%;
         text-align: center;
       }
@@ -704,6 +721,7 @@
         width: 100%;
       }
     }
+
     /* ======================================================= */
   </style>
 </head>
@@ -836,8 +854,8 @@
   <script>
     // ===== CONFIGURATION =====
     const TICKET_TYPES = {
-      individual: { label: "Individual", price: 30000, maxQty: 5, promo: false },
-      matrimonio: { label: "Matrimonio", price: 50000, maxQty: 1, promo: false },
+      individual: { label: "Individual", price: 100, maxQty: 5, promo: false },
+      matrimonio: { label: "Matrimonio", price: 100, maxQty: 1, promo: false },
     };
 
     const INDIVIDUAL_LINKS = {
@@ -993,13 +1011,6 @@
     }
 
     async function goToPayment() {
-      // Get payment link
-      let link = "";
-      if (selectedType === "individual") link = INDIVIDUAL_LINKS[quantity];
-      else if (selectedType === "matrimonio") link = MATRIMONIO_LINK;
-
-      if (!link) { alert("Error: link de pago no encontrado."); return; }
-
       // Save data to localStorage for the post-payment page
       const purchaseData = {
         type: selectedType,
@@ -1014,8 +1025,11 @@
       };
       localStorage.setItem("ticketflow_purchase", JSON.stringify(purchaseData));
 
-      // --- CAMBIO: Enviar datos a Google Sheets antes de redirigir ---
-      const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyxDF6KlCJneM37Ov1k8XGQi93e0vPsX17RZ1r021qOxyo2z-FFrxqNYBKd0_T6y_Yh/exec"; // URL de Google Apps Script
+      // --- CONFIGURACIÓN DE URL DE GOOGLE SCRIPT ---
+      const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxKbaoe8sSnJPjNPQnl8pqov21ZfeUxUnZec8pQr7X-v4mwEHtJymnxRbOE6eiqZekhtQ/exec";
+
+      // 1. Generar un ID único para esta transacción (External Reference)
+      const externalRef = "EXT-" + Date.now() + "-" + Math.floor(Math.random() * 1000);
       const dateStr = new Date().toLocaleDateString("es-AR") + " " + new Date().toLocaleTimeString("es-AR", { hour: '2-digit', minute: '2-digit' });
 
       const rows = purchaseData.names.map(name => ({
@@ -1025,33 +1039,56 @@
         pastor: purchaseData.pastor,
         tipo: purchaseData.typeLabel,
         cantidad: purchaseData.effectiveQty,
-        monto: purchaseData.totalPrice,
+        monto: purchaseData.totalPrice / purchaseData.names.length, // Monto por persona
       }));
 
       try {
-        // Cambiamos el texto del botón temporalmente para indicar que procesa
         const btn = document.querySelector(".btn-mp");
         if (btn) {
-          btn.innerHTML = 'Redirigiendo... ⏳';
+          btn.innerHTML = 'Procesando pago... ⏳';
           btn.style.pointerEvents = 'none';
         }
 
-        if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL !== "PEGAR_TU_URL_AQUI") {
-          await fetch(GOOGLE_SCRIPT_URL, {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ rows }),
-          });
-        } else {
-          console.warn("URL de Google Apps Script no configurada. (goToPayment)");
-        }
-      } catch (err) {
-        console.error("Error enviando datos:", err);
-      }
+        // 2. Enviar datos de registro al Excel con el ID de referencia
+        await fetch(GOOGLE_SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ rows, external_reference: externalRef }),
+        });
 
-      // Redirect to Mercado Pago (same tab so back_url works)
-      window.location.href = link;
+        // 3. Crear Preferencia de Pago en Mercado Pago vía Google Script
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({
+            action: "create_preference",
+            data: {
+              external_reference: externalRef,
+              typeLabel: purchaseData.typeLabel,
+              totalPrice: purchaseData.totalPrice
+            }
+          }),
+        });
+
+        const prefData = await response.json();
+        
+        if (prefData.init_point) {
+          // 4. Redirigir al Link de Pago dinámico (Modo compatible)
+          window.location.href = prefData.init_point;
+        } else {
+          throw new Error("No se pudo obtener el link de pago.");
+        }
+
+      } catch (err) {
+        console.error("Error en el proceso de pago:", err);
+        alert("Hubo un error al conectar con Mercado Pago o el Script de Google. Verifica la consola.");
+        const btn = document.querySelector(".btn-mp");
+        if (btn) {
+          btn.innerHTML = 'Pagar con Mercado Pago 🔗';
+          btn.style.pointerEvents = 'all';
+        }
+      }
     }
 
     function resetAll() {
