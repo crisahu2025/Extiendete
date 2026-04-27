@@ -1084,10 +1084,8 @@
     async function goToPayment() {
       // Save data to localStorage for the post-payment page
       const purchaseData = {
-        type: selectedType,
-        typeLabel: getTicket().label,
-        quantity: quantity,
-        effectiveQty: getEffectiveQty(),
+        quantities: { ...quantities },
+        typeLabel: (quantities.individual > 0 && quantities.matrimonio > 0) ? "Mixta (Indiv. + Matrim.)" : (quantities.individual > 0 ? "Individual" : "Matrimonio"),
         totalPrice: getTotalPrice(),
         city: formData.city,
         pastor: formData.pastor,

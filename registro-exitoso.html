@@ -214,9 +214,14 @@
                 `<div class="attendee-item"><strong>${i+1}.</strong> ${n}</div>`
             ).join("");
 
+            let qtyText = [];
+            if (p.quantities && p.quantities.individual > 0) qtyText.push(`${p.quantities.individual} Individual(es)`);
+            if (p.quantities && p.quantities.matrimonio > 0) qtyText.push(`${p.quantities.matrimonio} Matrimonio(s)`);
+            const quantityDisplay = qtyText.length > 0 ? qtyText.join(" + ") : (p.effectiveQty || "1");
+
             content.innerHTML = `
                 <div class="summary-row"><span>Entrada:</span> <strong>${p.typeLabel}</strong></div>
-                <div class="summary-row"><span>Cantidad:</span> <strong>${p.effectiveQty}</strong></div>
+                <div class="summary-row"><span>Cantidad:</span> <strong>${quantityDisplay}</strong></div>
                 <div class="summary-row"><span>Grupo/Iglesia:</span> <strong>${p.city}</strong></div>
                 <div class="summary-divider"></div>
                 <div class="summary-row" style="font-size:18px; color:var(--primary)">
