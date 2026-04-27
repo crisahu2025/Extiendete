@@ -816,6 +816,9 @@
             <div style="margin-bottom:24px">
               <p class="form-section-title">Nombres de los Asistentes</p>
               <p class="form-section-sub">Asegúrate de agregar a todas las personas del grupo debajo:</p>
+              <div id="mixedWarning" style="display:none; background:#fffbeb; border:1px solid #f97316; padding:12px; border-radius:12px; margin-bottom:16px; font-size:12px; color:#9a3412;">
+                ⚠️ <strong>Aviso:</strong> Estás pagando entradas Individuales y de Matrimonio juntas. Asegúrate de completar los nombres correctamente.
+              </div>
               <div id="namesContainer"></div>
             </div>
 
@@ -854,8 +857,8 @@
   <script>
     // ===== CONFIGURATION =====
     const TICKET_TYPES = {
-      individual: { label: "Individual", price: 100, maxQty: 5, promo: false },
-      matrimonio: { label: "Matrimonio", price: 100, maxQty: 1, promo: false },
+      individual: { label: "Individual", price: 30000, maxQty: 10, promo: false },
+      matrimonio: { label: "Matrimonio", price: 50000, maxQty: 5, promo: false },
     };
 
     const INDIVIDUAL_LINKS = {
@@ -880,16 +883,20 @@
     };
 
     // ===== STATE =====
-    let selectedType = "individual";
-    let quantity = 1;
+    let quantities = { individual: 1, matrimonio: 0 };
+    let activeType = "individual";
     let currentStep = "selection";
     let formData = null;
 
     // ===== HELPERS =====
-    function getTicket() { return TICKET_TYPES[selectedType]; }
-    function getEffectiveQty() { return quantity; }
-    function getNameSlots() { return selectedType === "matrimonio" ? 2 : getEffectiveQty(); }
-    function getTotalPrice() { return getTicket().price * quantity; }
+    function getTicket(type) { return TICKET_TYPES[type || activeType]; }
+    function getNameSlots() { 
+      return (quantities.individual) + (quantities.matrimonio * 2); 
+    }
+    function getTotalPrice() { 
+      return (quantities.individual * TICKET_TYPES.individual.price) + 
+             (quantities.matrimonio * TICKET_TYPES.matrimonio.price); 
+    }
 
     function formatPrice(n) { return "$" + n.toLocaleString("es-AR"); }
 
@@ -897,17 +904,21 @@
     function updateUI() {
       // Update ticket cards
       document.querySelectorAll(".ticket-card").forEach(card => {
-        card.classList.toggle("selected", card.dataset.type === selectedType);
+        const type = card.dataset.type;
+        const isSelected = quantities[type] > 0;
+        const isActive = activeType === type;
+        card.classList.toggle("selected", isSelected);
+        card.style.borderColor = isActive ? "var(--accent)" : (isSelected ? "var(--primary)" : "var(--border)");
       });
 
-      // Update quantity
-      document.getElementById("qtyValue").textContent = quantity;
-      document.getElementById("qtyMinus").disabled = quantity <= 1;
-      document.getElementById("qtyPlus").disabled = quantity >= getTicket().maxQty;
+      // Update quantity selector based on activeType
+      const qty = quantities[activeType];
+      document.getElementById("qtyValue").textContent = qty;
+      document.getElementById("qtyMinus").disabled = qty <= 0;
+      document.getElementById("qtyPlus").disabled = qty >= getTicket(activeType).maxQty;
 
       // Update hint
-      const hint = getTicket().promo ? "✨ Compra 10 y recibe 1 gratis!" : "Selecciona las unidades.";
-      document.getElementById("qtyHint").textContent = hint;
+      document.getElementById("qtyHint").textContent = `Editando cantidad para: ${getTicket(activeType).label}`;
 
       // Update total
       document.getElementById("totalDisplay").textContent = formatPrice(getTotalPrice());
@@ -925,15 +936,20 @@
     }
 
     function selectType(type) {
-      selectedType = type;
-      quantity = 1;
+      activeType = type;
+      if (quantities[type] === 0) quantities[type] = 1;
       updateUI();
     }
 
     function changeQty(delta) {
-      const newQ = quantity + delta;
-      if (newQ < 1 || newQ > getTicket().maxQty) return;
-      quantity = newQ;
+      const newQ = quantities[activeType] + delta;
+      if (newQ < 0 || newQ > getTicket(activeType).maxQty) return;
+      
+      // Ensure at least one ticket is selected total
+      const otherType = activeType === "individual" ? "matrimonio" : "individual";
+      if (newQ === 0 && quantities[otherType] === 0) return;
+
+      quantities[activeType] = newQ;
       updateUI();
     }
 
@@ -947,18 +963,33 @@
 
     function renderNameInputs() {
       const container = document.getElementById("namesContainer");
-      const slots = getNameSlots();
       container.innerHTML = "";
-      for (let i = 0; i < slots; i++) {
-        const saved = formData?.names?.[i] || "";
-        container.innerHTML += `
-          <div class="form-group">
-            <label class="form-label" style="font-size:10px; letter-spacing:1px;">Persona #${i + 1}</label>
-            <input class="form-input name-input" placeholder="Escribe aquí el nombre completo de la persona #${i + 1}"
-              value="${saved}" required style="padding:18px 24px; font-size:17px;" />
-          </div>
-        `;
+      
+      // Show warning if mixed
+      const isMixed = quantities.individual > 0 && quantities.matrimonio > 0;
+      document.getElementById("mixedWarning").style.display = isMixed ? "block" : "none";
+
+      let index = 0;
+      // Individual inputs
+      for (let i = 0; i < quantities.individual; i++) {
+        renderInput(container, index++, `Individual #${i + 1}`);
       }
+      // Matrimonio inputs
+      for (let i = 0; i < quantities.matrimonio; i++) {
+        renderInput(container, index++, `Matrimonio #${i + 1} - Persona A`);
+        renderInput(container, index++, `Matrimonio #${i + 1} - Persona B`);
+      }
+    }
+
+    function renderInput(container, i, label) {
+      const saved = formData?.names?.[i] || "";
+      container.innerHTML += `
+        <div class="form-group">
+          <label class="form-label" style="font-size:10px; letter-spacing:1px;">${label}</label>
+          <input class="form-input name-input" placeholder="Nombre completo"
+            value="${saved}" required style="padding:18px 24px; font-size:17px;" />
+        </div>
+      `;
     }
 
     function submitDetails(e) {
@@ -997,14 +1028,17 @@
 
     function renderSummary() {
       if (!formData) return;
-      const ticket = getTicket();
       let namesHtml = formData.names.map((n, i) =>
         `<div class="name-item"><strong>${i + 1}.</strong> ${n}</div>`
       ).join("");
 
+      let typesText = [];
+      if (quantities.individual > 0) typesText.push(`<strong>${quantities.individual}</strong> Individual(es)`);
+      if (quantities.matrimonio > 0) typesText.push(`<strong>${quantities.matrimonio}</strong> Matrimonio(s)`);
+
       document.getElementById("summaryContent").innerHTML = `
         <p class="city">Grupo de ${formData.city}</p>
-        <p class="entries"><strong>${getEffectiveQty()}</strong> entrada(s) <strong>${ticket.label}</strong></p>
+        <p class="entries">${typesText.join(" y ")}</p>
         <div class="summary-names">${namesHtml}</div>
         <p class="total-line">Total: ${formatPrice(getTotalPrice())}</p>
       `;
@@ -1032,14 +1066,21 @@
       const externalRef = "EXT-" + Date.now() + "-" + Math.floor(Math.random() * 1000);
       const dateStr = new Date().toLocaleDateString("es-AR") + " " + new Date().toLocaleTimeString("es-AR", { hour: '2-digit', minute: '2-digit' });
 
-      const rows = purchaseData.names.map(name => ({
+      const typesList = [];
+      for (let i = 0; i < quantities.individual; i++) typesList.push("Individual");
+      for (let i = 0; i < quantities.matrimonio; i++) {
+        typesList.push("Matrimonio");
+        typesList.push("Matrimonio");
+      }
+
+      const rows = purchaseData.names.map((name, i) => ({
         fecha: dateStr,
         nombre: name,
         ciudad: purchaseData.city,
         pastor: purchaseData.pastor,
-        tipo: purchaseData.typeLabel,
-        cantidad: purchaseData.effectiveQty,
-        monto: purchaseData.totalPrice / purchaseData.names.length, // Monto por persona
+        tipo: typesList[i],
+        cantidad: 1,
+        monto: (typesList[i] === "Individual" ? TICKET_TYPES.individual.price : TICKET_TYPES.matrimonio.price / 2),
       }));
 
       try {
