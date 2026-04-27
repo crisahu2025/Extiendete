@@ -1,0 +1,181 @@
+// --- CONFIGURACIÓN ---
+const ACCESS_TOKEN = "PEGA_AQUI_TU_ACCESS_TOKEN_PRODUCCION"; 
+const SPREADSHEET_ID = "1z1QFopAhSOGyeQmj8KhKsJamiUA4732jkAYk7gLEMVs";
+const TELEGRAM_TOKEN = "8656925426:AAHSq58QW2-VbX1B1b0x-U-mH_k5aO1xXoU";
+const HOJA_NOMBRE = "Pago-Online";
+
+/**
+ * Función principal: Maneja Webhooks de MP, Registro de la Web y Telegram
+ */
+function doPost(e) {
+  try {
+    if (!e || !e.postData) return;
+    const contents = JSON.parse(e.postData.contents);
+
+    // 1. CASO: WEBHOOK DE MERCADO PAGO (Aviso de pago)
+    if (contents.type === "payment" || (contents.action && contents.action.includes("payment"))) {
+      return handleMercadoPagoWebhook(contents);
+    }
+
+    // 2. CASO: CREAR PREFERENCIA (Link de pago dinámico)
+    if (contents.action === "create_preference") {
+      return createPreference(contents.data);
+    }
+
+    // 3. CASO: REGISTRO DESDE LA WEB (Guardar datos antes de pagar)
+    if (contents.rows) {
+      return handleWebRegistration(contents.rows, contents.external_reference);
+    }
+
+    // 4. CASO: MENSAJE DE TELEGRAM
+    if (contents.message) {
+      return handleTelegramBot(contents);
+    }
+
+  } catch (error) {
+    console.error("Error en doPost: " + error.toString());
+  }
+}
+
+/**
+ * Crea el link de pago en Mercado Pago
+ */
+function createPreference(data) {
+  const url = "https://api.mercadopago.com/checkout/preferences";
+  const payload = {
+    items: [{
+      title: "Entrada Conferencia 2026 - " + data.typeLabel,
+      quantity: 1,
+      unit_price: data.totalPrice,
+      currency_id: "ARS"
+    }],
+    external_reference: data.external_reference,
+    notification_url: ScriptApp.getService().getUrl(), 
+    back_urls: {
+      success: "https://eventos.iglesiagranrey.com/registro-exitoso.html",
+      failure: "https://eventos.iglesiagranrey.com/"
+    },
+    auto_return: "approved"
+  };
+
+  const options = {
+    method: "post",
+    contentType: "application/json",
+    headers: { Authorization: "Bearer " + ACCESS_TOKEN },
+    payload: JSON.stringify(payload)
+  };
+
+  const response = UrlFetchApp.fetch(url, options);
+  const prefData = JSON.parse(response.getContentText());
+  
+  // Devolvemos tanto el link como el ID para poder usar el Modal
+  return ContentService.createTextOutput(JSON.stringify({
+    init_point: prefData.init_point,
+    id: prefData.id
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * Maneja el aviso de Mercado Pago cuando se aprueba un pago
+ */
+function handleMercadoPagoWebhook(contents) {
+  const paymentId = contents.data ? contents.data.id : contents.id;
+  const url = "https://api.mercadopago.com/v1/payments/" + paymentId;
+  const options = { headers: { Authorization: "Bearer " + ACCESS_TOKEN } };
+  
+  const response = UrlFetchApp.fetch(url, options);
+  const payment = JSON.parse(response.getContentText());
+
+  if (payment.status === "approved") {
+    const externalRef = payment.external_reference;
+    confirmPaymentInSheet(externalRef, paymentId);
+  }
+  return ContentService.createTextOutput("OK");
+}
+
+/**
+ * Busca las filas con ese ID de referencia y las marca como pagadas
+ */
+function confirmPaymentInSheet(ref, paymentId) {
+  const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(HOJA_NOMBRE);
+  const data = sheet.getDataRange().getValues();
+  
+  for (let i = 1; i < data.length; i++) {
+    // Buscamos el ID en la Columna L (índice 11)
+    if (data[i][11] == ref) {
+      sheet.getRange(i + 1, 6).setValue(paymentId); // Columna F: Comprobante
+      sheet.getRange(i + 1, 13).setValue("PAGO APROBADO ✅"); // Columna M: Estado de Pago
+    }
+  }
+}
+
+/**
+ * Guarda los datos de los asistentes en la planilla
+ */
+function handleWebRegistration(rows, externalRef) {
+  const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(HOJA_NOMBRE);
+  rows.forEach(row => {
+    // Columnas: A:Entrada, B:Fecha, C:Nombre, D:Ciudad, E:Monto, F:Comprobante, G:Pulsera, H:Usuario, I:FechaEntrega, J:Pastor, K:Lider, L:ExternalRef
+    sheet.appendRow([
+      row.tipo, 
+      row.fecha, 
+      row.nombre, 
+      row.ciudad, 
+      row.monto, 
+      "",       // F: Comprobante (se llena al pagar)
+      "NO",     // G: Se entrego pulsera
+      "",       // H: Usuario que entrega
+      "",       // I: Fecha entrega
+      row.pastor || "", 
+      "",       // K: Lider
+      externalRef // L: ID de Referencia (para el webhook)
+    ]);
+  });
+  return ContentService.createTextOutput("OK");
+}
+
+/**
+ * Lógica del Bot de Telegram (Búsqueda y entrega de pulseras)
+ */
+function handleTelegramBot(update) {
+  const chatId = update.message.chat.id;
+  const text = (update.message.text || "").trim();
+  const user = update.message.from.first_name || "Admin";
+  
+  // Aquí podés pegar la lógica de búsqueda que ya tenías, 
+  // pero apuntando a las columnas de tu nueva hoja.
+  if (text.toLowerCase() === "/start") {
+    sendMessage(chatId, "👋 Hola! Soy el bot de PRUEBAS. Escribí un nombre para buscar.");
+    return;
+  }
+  
+  // Implementación simplificada de búsqueda para el test
+  const resultados = buscarEnSheet(text);
+  if (resultados.length === 0) {
+    sendMessage(chatId, "❌ No encontré a nadie con ese nombre.");
+  } else {
+    let msg = "🔍 Resultados:\n";
+    resultados.forEach((r, i) => {
+      msg += `${i+1}) ${r.nombre} (${r.pagado ? "PAGADO ✅" : "PENDIENTE ⏳"})\n`;
+    });
+    sendMessage(chatId, msg);
+  }
+}
+
+function buscarEnSheet(q) {
+  const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(HOJA_NOMBRE);
+  const data = sheet.getDataRange().getValues();
+  const res = [];
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][2].toLowerCase().includes(q.toLowerCase())) {
+      res.push({ nombre: data[i][2], pagado: data[i][12] === "PAGO APROBADO ✅" });
+    }
+  }
+  return res;
+}
+
+function sendMessage(id, txt) {
+  UrlFetchApp.fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+    method: "post", contentType: "application/json", payload: JSON.stringify({ chat_id: id, text: txt })
+  });
+}
