@@ -753,6 +753,13 @@
         <div class="step-section active" id="step-selection">
           <h2 class="step-title">1. Elige tu entrada</h2>
 
+          <div id="selectionSummary" class="quantity-box" style="display:none; background:rgba(6, 95, 70, 0.08); border:2px solid var(--primary); margin-bottom:24px; padding:24px;">
+            <div style="width:100%">
+              <h4 style="font-size:18px; color:var(--primary); margin-bottom:12px;">🛒 Tu carrito:</h4>
+              <div id="summaryText" style="font-size:16px; font-weight:600; line-height:1.6; color:var(--text);"></div>
+            </div>
+          </div>
+
           <div class="ticket-grid" id="ticketGrid">
             <div class="ticket-card selected" data-type="individual" onclick="selectType('individual')">
               <div class="ticket-icon">👤</div>
@@ -782,12 +789,14 @@
             </div>
           </div>
 
+
+
           <div class="total-bar">
             <div>
               <p class="total-label">Total</p>
-              <p class="total-value" id="totalDisplay">$15.000</p>
+              <p class="total-value" id="totalDisplay">$0</p>
             </div>
-            <button class="btn btn-primary" onclick="goToStep('details')">
+            <button class="btn btn-primary" id="nextBtn" onclick="goToStep('details')">
               Siguiente ›
             </button>
           </div>
@@ -816,8 +825,10 @@
             <div style="margin-bottom:24px">
               <p class="form-section-title">Nombres de los Asistentes</p>
               <p class="form-section-sub">Asegúrate de agregar a todas las personas del grupo debajo:</p>
-              <div id="mixedWarning" style="display:none; background:#fffbeb; border:1px solid #f97316; padding:12px; border-radius:12px; margin-bottom:16px; font-size:12px; color:#9a3412;">
-                ⚠️ <strong>Aviso:</strong> Estás pagando entradas Individuales y de Matrimonio juntas. Asegúrate de completar los nombres correctamente.
+              <div id="mixedWarning" style="display:none; background:#fff7ed; border:3px solid #f97316; padding:24px; border-radius:16px; margin-bottom:24px; font-size:16px; color:#9a3412; box-shadow:0 4px 12px rgba(249, 115, 22, 0.15);">
+                ⚠️ <strong style="font-size:18px;">AVISO IMPORTANTE:</strong><br>
+                Estás pagando entradas <strong>Individuales</strong> y de <strong>Matrimonio</strong> juntas. <br>
+                Asegúrate de completar los nombres de todos los asistentes correctamente debajo.
               </div>
               <div id="namesContainer"></div>
             </div>
@@ -883,7 +894,7 @@
     };
 
     // ===== STATE =====
-    let quantities = { individual: 1, matrimonio: 0 };
+    let quantities = { individual: 0, matrimonio: 0 };
     let activeType = "individual";
     let currentStep = "selection";
     let formData = null;
@@ -921,7 +932,32 @@
       document.getElementById("qtyHint").textContent = `Editando cantidad para: ${getTicket(activeType).label}`;
 
       // Update total
-      document.getElementById("totalDisplay").textContent = formatPrice(getTotalPrice());
+      const total = getTotalPrice();
+      document.getElementById("totalDisplay").textContent = formatPrice(total);
+
+      // Update Selection Summary and Next Button
+      const totalQty = quantities.individual + quantities.matrimonio;
+      const summaryDiv = document.getElementById("selectionSummary");
+      const summaryText = document.getElementById("summaryText");
+      const nextBtn = document.getElementById("nextBtn");
+
+      if (totalQty > 0) {
+        summaryDiv.style.display = "flex";
+        let html = "";
+        if (quantities.matrimonio > 0) {
+          html += `<div>${quantities.matrimonio} Matrimonio(s) = ${formatPrice(quantities.matrimonio * TICKET_TYPES.matrimonio.price)}</div>`;
+        }
+        if (quantities.individual > 0) {
+          html += `<div>${quantities.individual} Individual(es) = ${formatPrice(quantities.individual * TICKET_TYPES.individual.price)}</div>`;
+        }
+        summaryText.innerHTML = html;
+        nextBtn.disabled = false;
+        nextBtn.style.opacity = "1";
+      } else {
+        summaryDiv.style.display = "none";
+        nextBtn.disabled = true;
+        nextBtn.style.opacity = "0.5";
+      }
 
       // Update progress
       const pct = currentStep === "selection" ? "33%" : currentStep === "details" ? "66%" : "100%";
@@ -945,10 +981,6 @@
       const newQ = quantities[activeType] + delta;
       if (newQ < 0 || newQ > getTicket(activeType).maxQty) return;
       
-      // Ensure at least one ticket is selected total
-      const otherType = activeType === "individual" ? "matrimonio" : "individual";
-      if (newQ === 0 && quantities[otherType] === 0) return;
-
       quantities[activeType] = newQ;
       updateUI();
     }
@@ -970,14 +1002,22 @@
       document.getElementById("mixedWarning").style.display = isMixed ? "block" : "none";
 
       let index = 0;
-      // Individual inputs
-      for (let i = 0; i < quantities.individual; i++) {
-        renderInput(container, index++, `Individual #${i + 1}`);
+
+      // Group Matrimonios
+      if (quantities.matrimonio > 0) {
+        container.innerHTML += `<p class="form-section-title" style="margin: 16px 0 8px; text-align: left; color: var(--accent); font-size:14px; border-bottom:1px solid var(--accent); padding-bottom:4px;">Matrimonios:</p>`;
+        for (let i = 0; i < quantities.matrimonio; i++) {
+          renderInput(container, index++, `Matrimonio #${i + 1} - Persona A`);
+          renderInput(container, index++, `Matrimonio #${i + 1} - Persona B`);
+        }
       }
-      // Matrimonio inputs
-      for (let i = 0; i < quantities.matrimonio; i++) {
-        renderInput(container, index++, `Matrimonio #${i + 1} - Persona A`);
-        renderInput(container, index++, `Matrimonio #${i + 1} - Persona B`);
+
+      // Group Individuales
+      if (quantities.individual > 0) {
+        container.innerHTML += `<p class="form-section-title" style="margin: 24px 0 8px; text-align: left; color: var(--accent); font-size:14px; border-bottom:1px solid var(--accent); padding-bottom:4px;">Individuales:</p>`;
+        for (let i = 0; i < quantities.individual; i++) {
+          renderInput(container, index++, `Persona #${i + 1}`);
+        }
       }
     }
 
