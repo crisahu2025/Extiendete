@@ -429,13 +429,30 @@
           <h2 class="step-title">2. Foto del Sobre</h2>
           <p style="color: var(--muted); margin-bottom: 24px;">Por favor subí una foto clara del sobre de espiga.</p>
 
-          <div class="file-upload-area" id="dropArea" onclick="document.getElementById('fotoInput').click()">
-            <div style="font-size: 48px; color: var(--primary);">📸</div>
-            <div class="file-upload-text" id="fileText">Haz clic para seleccionar o tomar una foto</div>
-            <p style="font-size: 13px; color: var(--muted); margin-top: 8px;">JPG, PNG (Max 10MB)</p>
-            <input type="file" id="fotoInput" accept="image/*" style="display: none;" onchange="handleFile(this)" />
-            <img id="imagePreview" class="file-preview" src="" alt="Vista previa" />
+          <div id="photoOptionsContainer" style="display: flex; gap: 16px; margin-bottom: 24px;">
+            <div class="file-upload-area" style="flex: 1; padding: 30px 10px;" onclick="document.getElementById('cameraInput').click()">
+              <div style="font-size: 40px;">📷</div>
+              <div class="file-upload-text" style="font-size: 15px; margin-top: 12px;">Tomar Foto</div>
+              <p style="font-size: 11px; color: var(--muted); margin-top: 4px;">Usar la cámara</p>
+            </div>
+            <div class="file-upload-area" style="flex: 1; padding: 30px 10px;" onclick="document.getElementById('galleryInput').click()">
+              <div style="font-size: 40px;">🖼️</div>
+              <div class="file-upload-text" style="font-size: 15px; margin-top: 12px;">De Galería</div>
+              <p style="font-size: 11px; color: var(--muted); margin-top: 4px;">Subir archivo</p>
+            </div>
           </div>
+
+          <div class="file-upload-area" id="dropArea" style="display: none; padding: 20px;">
+            <div class="file-upload-text" id="fileText" style="margin-top: 0; color: #22c55e;">✅ Foto seleccionada</div>
+            <img id="imagePreview" class="file-preview" src="" alt="Vista previa" style="display: block; margin: 16px auto 0;" />
+            <div style="display: flex; gap: 10px; margin-top: 16px;">
+              <button class="btn btn-outline" style="flex: 1; padding: 10px;" onclick="document.getElementById('cameraInput').click()">📷 Retomar</button>
+              <button class="btn btn-outline" style="flex: 1; padding: 10px;" onclick="document.getElementById('galleryInput').click()">🖼️ Cambiar</button>
+            </div>
+          </div>
+
+          <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;" onchange="handleFile(this)" />
+          <input type="file" id="galleryInput" accept="image/*" style="display: none;" onchange="handleFile(this)" />
 
           <div class="nav-buttons">
             <button class="btn btn-outline" onclick="goToStep(1)">‹ Volver</button>
@@ -549,10 +566,11 @@
 
         const reader = new FileReader();
         reader.onload = function (e) {
+          document.getElementById("photoOptionsContainer").style.display = "none";
+          document.getElementById("dropArea").style.display = "block";
           document.getElementById("imagePreview").src = e.target.result;
           document.getElementById("imagePreview").style.display = "block";
           document.getElementById("dropArea").classList.add("has-file");
-          document.getElementById("fileText").innerText = "Foto seleccionada (Clic para cambiar)";
 
           // Extraer base64
           const result = e.target.result;
