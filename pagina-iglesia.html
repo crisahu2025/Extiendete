@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iglesia Gran Rey | Oficial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Playfair+Display:wght@700&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gold: #D6AF66;
+            --bg-dark: #1C1C1C;
+            --bg-cyan: #D1E5E5;
+            --accent-red: #C41E3A;
+            --text-white: #FFFFFF;
+            --text-dark: #1D1D1B;
+            --transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background-color: var(--bg-gold);
+            color: var(--text-dark);
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 20px;
+            position: relative;
+        }
+
+        .container {
+            max-width: 1100px;
+            width: 100%;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        /* --- HEADER --- */
+        .header {
+            background-color: var(--bg-dark);
+            color: var(--text-white);
+            padding: 100px 20px;
+            border-bottom: 8px solid var(--bg-gold);
+        }
+
+        .logo-box {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 30px;
+            /* Using the extracted logo screenshot path */
+            background-image: url('file:///C:/Users/Code Ahumada/.gemini/antigravity/brain/1a37f561-ddf7-4e16-b7ac-098d01a6909d/header_and_cards_1777313638391.png');
+            background-size: 300%;
+            background-position: top center;
+            border-radius: 50%;
+        }
+
+        .header h1 {
+            font-size: clamp(2.5rem, 8vw, 4.5rem);
+            font-weight: 900;
+            letter-spacing: 8px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .header p {
+            font-size: 1rem;
+            letter-spacing: 4px;
+            color: var(--bg-gold);
+            text-transform: uppercase;
+            font-weight: 400;
+        }
+
+        /* --- CARDS SECTION --- */
+        .cards-section {
+            background-color: var(--bg-gold);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            padding: 60px 40px;
+        }
+
+        .action-card {
+            background: white;
+            padding: 50px 30px;
+            border-radius: 30px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            transition: var(--transition);
+            text-decoration: none;
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .action-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+        }
+
+        .action-card h3 {
+            font-size: 1.2rem;
+            font-weight: 900;
+            margin-top: 20px;
+            letter-spacing: 1px;
+        }
+
+        .action-card .icon-img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+        }
+
+        /* --- REUNIONES (SCHEDULE) --- */
+        .reuniones {
+            background-color: var(--bg-dark);
+            color: var(--text-white);
+            padding: 100px 20px;
+        }
+
+        .reuniones h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            margin-bottom: 50px;
+            letter-spacing: 3px;
+        }
+
+        .reuniones-img {
+            width: 100%;
+            max-width: 900px;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            transition: var(--transition);
+        }
+
+        .reuniones-img:hover {
+            transform: scale(1.02);
+        }
+
+        /* --- EXTIENDETE SECTION --- */
+        .extiendete {
+            background-color: var(--bg-cyan);
+            padding: 120px 20px;
+        }
+
+        .extiendete-banner {
+            width: 100%;
+            max-width: 1000px;
+            border-radius: 40px;
+            margin-bottom: 50px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+        }
+
+        .btn-red {
+            background-color: var(--accent-red);
+            color: white;
+            padding: 24px 60px;
+            border-radius: 60px;
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 1.4rem;
+            display: inline-block;
+            box-shadow: 0 15px 30px rgba(196, 30, 58, 0.3);
+            transition: var(--transition);
+            text-transform: uppercase;
+        }
+
+        .btn-red:hover {
+            transform: scale(1.1);
+            background-color: #e00;
+            box-shadow: 0 20px 40px rgba(196, 30, 58, 0.4);
+        }
+
+        /* --- PASTORES --- */
+        .pastores {
+            background-color: var(--bg-dark);
+            padding: 120px 20px;
+        }
+
+        .pastores-img {
+            width: 100%;
+            max-width: 800px;
+            border-radius: 40px;
+            border: 2px solid var(--bg-gold);
+        }
+
+        /* --- VERSE --- */
+        .verse-section {
+            background-color: white;
+            padding: 120px 20px;
+        }
+
+        .verse-img {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* --- FLOATING ELEMENTS --- */
+        .wa-float {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            background: #25d366;
+            width: 75px;
+            height: 75px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 40px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+            z-index: 1000;
+            transition: var(--transition);
+            animation: pulse 2s infinite;
+        }
+
+        .wa-float:hover { transform: scale(1.1) rotate(15deg); }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.5); }
+            70% { box-shadow: 0 0 0 25px rgba(37, 211, 102, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+        }
+
+        /* --- REVEAL ON SCROLL --- */
+        [data-reveal] {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: 1s all cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        [data-reveal].active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- FOOTER --- */
+        .footer {
+            background-color: var(--bg-dark);
+            color: var(--text-white);
+            padding: 80px 20px;
+            text-align: center;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            section { padding: 60px 20px; }
+            .action-card { padding: 40px 20px; }
+            .btn-red { font-size: 1.1rem; padding: 18px 40px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="container">
+            <div class="logo-box"></div>
+            <h1>IGLESIA GRAN REY</h1>
+            <p>Discipulado, crecimiento, excelencia y familia</p>
+        </div>
+    </header>
+
+    <main>
+        <!-- CARDS -->
+        <section class="cards-section">
+            <a href="https://wa.me/5493364583589" class="action-card" data-reveal>
+                <img src="https://cdn-icons-png.flaticon.com/512/1067/1067562.png" class="icon-img" alt="Pray">
+                <h3>PEDIDOS DE ORACIÓN</h3>
+            </a>
+            <div class="action-card" data-reveal>
+                <img src="https://cdn-icons-png.flaticon.com/512/1189/1189136.png" class="icon-img" alt="Help">
+                <h3>PIEDAD</h3>
+            </div>
+            <div class="action-card" data-reveal>
+                <img src="https://cdn-icons-png.flaticon.com/512/2942/2942006.png" class="icon-img" alt="World">
+                <h3>MISIONES</h3>
+            </div>
+            <div class="action-card" data-reveal>
+                <img src="https://cdn-icons-png.flaticon.com/512/2150/2150150.png" class="icon-img" alt="Offer">
+                <h3>OFRENDA MISIONERA</h3>
+            </div>
+        </section>
+
+        <!-- REUNIONES -->
+        <section class="reuniones" data-reveal>
+            <div class="container">
+                <h2>NUESTRAS REUNIONES</h2>
+                <img src="file:///C:/Users/Code Ahumada/.gemini/antigravity/brain/1a37f561-ddf7-4e16-b7ac-098d01a6909d/reuniones_section_1777313660361.png" class="reuniones-img" alt="Cronograma">
+            </div>
+        </section>
+
+        <!-- EXTIENDETE -->
+        <section class="extiendete" data-reveal>
+            <div class="container">
+                <img src="file:///C:/Users/Code Ahumada/.gemini/antigravity/brain/1a37f561-ddf7-4e16-b7ac-098d01a6909d/extiendete_section_1777313703083.png" class="extiendete-banner" alt="Banner Extiendete">
+                <div style="margin-top:20px;">
+                    <a href="https://eventos.iglesiagranrey.com/" class="btn-red">ADQUIRÍ TU ENTRADA ACÁ</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- PROMO 300 -->
+        <section class="reuniones" style="background-color: #000;" data-reveal>
+            <div class="container">
+                <img src="file:///C:/Users/Code Ahumada/.gemini/antigravity/brain/1a37f561-ddf7-4e16-b7ac-098d01a6909d/promo_section_300_1777313729711.png" class="reuniones-img" alt="Promo 300">
+            </div>
+        </section>
+
+        <!-- PASTORES -->
+        <section class="pastores" data-reveal>
+            <div class="container">
+                <img src="file:///C:/Users/Code Ahumada/.gemini/antigravity/brain/1a37f561-ddf7-4e16-b7ac-098d01a6909d/pastores_section_1777313682261.png" class="pastores-img" alt="Pastores Weiss">
+            </div>
+        </section>
+
+        <!-- VERSE -->
+        <section class="verse-section" data-reveal>
+            <div class="container">
+                <img src="file:///C:/Users/Code Ahumada/.gemini/antigravity/brain/1a37f561-ddf7-4e16-b7ac-098d01a6909d/bible_verse_section_1777313757217.png" class="verse-img" alt="Isaías 54:2">
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>📍 Lavalle 930, San Nicolás de los Arroyos</p>
+            <p>© 2026 IGLESIA GRAN REY • DISCIPULADO Y FAMILIA</p>
+        </div>
+    </footer>
+
+    <a href="https://wa.me/5493364583589" class="wa-float" target="_blank">
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/>
+        </svg>
+    </a>
+
+    <script>
+        function reveal() {
+            var reveals = document.querySelectorAll("[data-reveal]");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                var elementVisible = 100;
+                if (elementTop < windowHeight - elementVisible) {
+                    reveals[i].classList.add("active");
+                }
+            }
+        }
+        window.addEventListener("scroll", reveal);
+        reveal();
+    </script>
+</body>
+</html>
