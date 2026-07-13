@@ -4,12 +4,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-  <title>Extiendete 2026</title>
+  <title>EXTIENDETE DE HOMBRES 2026</title>
   <link rel="icon" type="image/png" href="favicon.png" />
   <meta name="description"
-    content="Adquiere tus entradas para EXTIENDETE 2026. Venta oficial de entradas online." />
-  <meta property="og:title" content="EXTIENDETE 2026 - Entradas" />
-  <meta property="og:description" content="Adquiere tus entradas para EXTIENDETE 2026." />
+    content="Adquiere tus entradas para EXTIENDETE DE HOMBRES 2026. Venta oficial de entradas online." />
+  <meta property="og:title" content="EXTIENDETE DE HOMBRES 2026 - Entradas" />
+  <meta property="og:description" content="Adquiere tus entradas para EXTIENDETE DE HOMBRES 2026." />
   <meta property="og:type" content="website" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -217,7 +217,7 @@
 
     @media (min-width: 768px) {
       .ticket-grid {
-        grid-template-columns: repeat(2, 280px);
+        grid-template-columns: 280px;
         justify-content: center;
       }
     }
@@ -732,7 +732,7 @@
   <div class="container">
     <div class="header">
       <!-- Badge eliminado -->
-      <h1>EXTIENDETE 2026</h1>
+      <h1>EXTIENDETE DE HOMBRES 2026</h1>
       <p>Es momento de extenderte en Dios</p>
     </div>
 
@@ -766,23 +766,11 @@
               <div class="check">✓</div>
               <h3>Individual</h3>
               <p class="desc">Acceso personal al evento online.</p>
-              <div class="price">$40.000</div>
+              <div class="price">$15.000</div>
               <div class="qty-controls" style="margin-top:16px;" onclick="event.stopPropagation()">
                 <button class="qty-btn" onclick="changeQty('individual', -1)">−</button>
                 <span class="qty-value" id="qty-individual">0</span>
                 <button class="qty-btn" onclick="changeQty('individual', 1)">+</button>
-              </div>
-            </div>
-            <div class="ticket-card" data-type="matrimonio" onclick="selectType('matrimonio')">
-              <div class="ticket-icon">👫</div>
-              <div class="check">✓</div>
-              <h3>Matrimonio</h3>
-              <p class="desc">Entrada especial para parejas casadas.</p>
-              <div class="price">$70.000</div>
-              <div class="qty-controls" style="margin-top:16px;" onclick="event.stopPropagation()">
-                <button class="qty-btn" onclick="changeQty('matrimonio', -1)">−</button>
-                <span class="qty-value" id="qty-matrimonio">0</span>
-                <button class="qty-btn" onclick="changeQty('matrimonio', 1)">+</button>
               </div>
             </div>
           </div>
@@ -868,7 +856,7 @@
   <script>
     // ===== CONFIGURATION =====
     const TICKET_TYPES = {
-      individual: { label: "Individual", price: 40000, maxQty: 10, promo: false },
+      individual: { label: "Individual", price: 15000, maxQty: 10, promo: false },
       matrimonio: { label: "Matrimonio", price: 70000, maxQty: 5, promo: false },
     };
 
@@ -1011,7 +999,9 @@
 
       // Group Individuales
       if (quantities.individual > 0) {
-        container.innerHTML += `<p class="form-section-title" style="margin: 24px 0 8px; text-align: left; color: var(--accent); font-size:14px; border-bottom:1px solid var(--accent); padding-bottom:4px;">Individuales:</p>`;
+        if (quantities.matrimonio > 0) {
+          container.innerHTML += `<p class="form-section-title" style="margin: 24px 0 8px; text-align: left; color: var(--accent); font-size:14px; border-bottom:1px solid var(--accent); padding-bottom:4px;">Individuales:</p>`;
+        }
         for (let i = 0; i < quantities.individual; i++) {
           renderInput(container, index++, `Persona #${i + 1}`);
         }
