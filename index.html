@@ -1085,27 +1085,23 @@
       localStorage.setItem("ticketflow_purchase", JSON.stringify(purchaseData));
 
       // --- CONFIGURACIÓN DE URL DE GOOGLE SCRIPT ---
-      const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM36ATXfmKxwNB8Zhs8Oq82Emrl720zhbsQjjyenFetRg3xLD4P5QP50zn1NnMOt1-6A/exec";
+      const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby0zNPxZRH814eZg1vWSW1GsY3dHT1eUPeY3cUMKbYwdbHTmfFuc6_3gwy63A1RC9U/exec";
 
       // 1. Generar un ID único para esta transacción (External Reference)
       const externalRef = "EXT-" + Date.now() + "-" + Math.floor(Math.random() * 1000);
-      const dateStr = new Date().toLocaleDateString("es-AR") + " " + new Date().toLocaleTimeString("es-AR", { hour: '2-digit', minute: '2-digit' });
 
-      const typesList = [];
-      for (let i = 0; i < quantities.individual; i++) typesList.push("Individual");
-      for (let i = 0; i < quantities.matrimonio; i++) {
-        typesList.push("Matrimonio");
-        typesList.push("Matrimonio");
-      }
+      // Obtener fecha formateada
+      const now = new Date();
+      const dateStr = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
 
       const rows = purchaseData.names.map((name, i) => ({
         fecha: dateStr,
         nombre: name,
         ciudad: purchaseData.city,
         pastor: purchaseData.pastor,
-        tipo: typesList[i],
+        tipo: (i < quantities.matrimonio * 2) ? "Matrimonio" : "Individual",
         cantidad: 1,
-        monto: (typesList[i] === "Individual" ? TICKET_TYPES.individual.price : TICKET_TYPES.matrimonio.price / 2),
+        monto: ((i < quantities.matrimonio * 2) ? TICKET_TYPES.matrimonio.price / 2 : TICKET_TYPES.individual.price),
       }));
 
       try {
@@ -1120,7 +1116,7 @@
           method: "POST",
           mode: "no-cors",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ rows, external_reference: externalRef }),
+          body: JSON.stringify({ rows, external_reference: externalRef, token: "GRAN_REY_SECURE_2026" }),
         });
 
         // 3. Crear Preferencia de Pago en Mercado Pago vía Google Script
@@ -1129,6 +1125,7 @@
           headers: { "Content-Type": "text/plain" },
           body: JSON.stringify({
             action: "create_preference",
+            token: "GRAN_REY_SECURE_2026",
             data: {
               external_reference: externalRef,
               typeLabel: purchaseData.typeLabel,
