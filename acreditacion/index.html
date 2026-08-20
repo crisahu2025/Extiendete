@@ -620,20 +620,22 @@
 <div class="toast" id="toast" role="alert"></div>
 
 <script>
-  // ===== CONFIG — MULTI-EVENTO =====
+  // ===== CONFIG — MULTI-EVENTO UNIFICADO =====
+  // Un solo script maneja ambas planillas
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxU0bTH8NIX1lpKvomyivxQtI8VY1F4HvceyMmqoqmdkp_RsQKr1or59XjvNLLe-oxm/exec";
   const EVENTOS = {
     "EXTHOMBRES2026": {
-      nombre: "Extiendete de Hombres 2026",
-      scriptUrl: "https://script.google.com/macros/s/AKfycbxU0bTH8NIX1lpKvomyivxQtI8VY1F4HvceyMmqoqmdkp_RsQKr1or59XjvNLLe-oxm/exec"
+      clave: "EXTHOMBRES",
+      nombre: "Extiendete de Hombres 2026"
     },
     "LUMINATE2026": {
-      nombre: "Luminate 2026",
-      scriptUrl: "https://script.google.com/macros/s/AKfycbxY_-vU0TYkPd-D-Fcyy8x2qeSr86hua-US4_kNMKkjZwKb-JDu19fzgp2Woh33Qlns/exec"
+      clave: "LUMINATE",
+      nombre: "Luminate 2026"
     }
   };
   const TOKEN = "ACRED_EXTIENDETE_2026";
 
-  let SCRIPT_URL = "";
+  let EVENTO_CLAVE = "EXTHOMBRES";
   let EVENTO_NOMBRE = "";
   let COLAB_NAME = sessionStorage.getItem("acred_colab") || "";
 
@@ -673,12 +675,7 @@
       return;
     }
 
-    if (!evento.scriptUrl) {
-      errEl.textContent = "Este evento aun no tiene su sistema listo. Consulta al administrador.";
-      return;
-    }
-
-    SCRIPT_URL = evento.scriptUrl;
+    EVENTO_CLAVE = evento.clave;
     EVENTO_NOMBRE = evento.nombre;
     COLAB_NAME = name;
     sessionStorage.setItem("acred_colab", name);
@@ -935,7 +932,7 @@
     var r = await fetch(SCRIPT_URL, {
       method: "POST",
       headers: { "Content-Type": "text/plain" },
-      body: JSON.stringify(Object.assign({}, body, { token: TOKEN }))
+      body: JSON.stringify(Object.assign({}, body, { evento: EVENTO_CLAVE, token: TOKEN }))
     });
     return r.json();
   }

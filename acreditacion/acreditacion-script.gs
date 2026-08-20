@@ -1,15 +1,16 @@
-﻿// ================================================================
-//  ACREDITACION WEB — Extiendete de Hombres 2026
-//  Script INDEPENDIENTE — no modifica el bot de Telegram existente
+// ================================================================
+//  ACREDITACION WEB UNIFICADA — Extiendete & Luminate 2026
+//  Un solo script para ambos eventos (maneja las 2 planillas)
 // ================================================================
 
-// --- CONFIGURACION ---
-const SPREADSHEET_ID = "1z1QFopAhSOGyeQmj8KhKsJamiUA4732jkAYk7gLEMVs";
-const HOJAS = ["Pago-Online", "Pago-Efectivo"];
-const ACRED_TOKEN = "ACRED_EXTIENDETE_2026"; // Token exclusivo de este script
+// --- PLANILLAS DE CADA EVENTO ---
+const PLANILLAS = {
+  "EXTHOMBRES": "1z1QFopAhSOGyeQmj8KhKsJamiUA4732jkAYk7gLEMVs",
+  "LUMINATE":   "1dCTBmZTsOkgf1evvLCVkvCSWOr_-gYs6yXln1kxTYAM"
+};
 
-// Columnas (indice base 0):
-// 0=Tipo, 1=Fecha, 2=Nombre, 3=Ciudad, 4=Monto, 5=IDPago, 6=Entregado, 7=EntregadoPor, 8=FechaEntrega
+const HOJAS = ["Pago-Online", "Pago-Efectivo"];
+const ACRED_TOKEN = "ACRED_EXTIENDETE_2026";
 
 function corsOutput(data) {
   const output = ContentService.createTextOutput(JSON.stringify(data));
@@ -22,7 +23,13 @@ function doGet(e) {
   if (!e || e.parameter.token !== ACRED_TOKEN) {
     return corsOutput({ ok: false, error: "No autorizado" });
   }
-  return corsOutput({ ok: true, message: "Script de Acreditacion ONLINE", ts: new Date().toISOString() });
+  return corsOutput({ ok: true, message: "Script Unificado de Acreditacion ONLINE", ts: new Date().toISOString() });
+}
+
+// Obtiene el ID de la planilla segun el evento recibido
+function getSpreadsheetId(evento) {
+  const key = (evento || "EXTHOMBRES").toUpperCase().trim();
+  return PLANILLAS[key] || PLANILLAS["EXTHOMBRES"];
 }
 
 // Punto de entrada principal
@@ -33,10 +40,13 @@ function doPost(e) {
     if (body.token !== ACRED_TOKEN) {
       return corsOutput({ ok: false, error: "No autorizado" });
     }
+
+    const ssId = getSpreadsheetId(body.evento);
+
     switch (body.action) {
-      case "buscar":   return accionBuscar(body.query || "");
-      case "listar":   return accionListar(body.pagina || 1, body.porPagina || 50);
-      case "entregar": return accionEntregar(body.personas || [], body.colaborador || "Web");
+      case "buscar":   return accionBuscar(ssId, body.query || "");
+      case "listar":   return accionListar(ssId, body.pagina || 1, body.porPagina || 50);
+      case "entregar": return accionEntregar(ssId, body.personas || [], body.colaborador || "Web");
       default:         return corsOutput({ ok: false, error: "Accion desconocida: " + body.action });
     }
   } catch (err) {
@@ -48,8 +58,8 @@ function doPost(e) {
 // ================================================================
 //  ACCION: BUSCAR
 // ================================================================
-function accionBuscar(query) {
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+function accionBuscar(ssId, query) {
+  const ss = SpreadsheetApp.openById(ssId);
   const resultados = [];
   const q = query.toLowerCase().trim();
 
@@ -62,7 +72,7 @@ function accionBuscar(query) {
       if (!nombre || nombre === "") continue;
       if (q && !nombre.toLowerCase().includes(q)) continue;
       const entregado = String(data[i][6] || "").toLowerCase().trim();
-      const yaEntregada = ["si", "si", "se entrega pulsera"].includes(entregado);
+      const yaEntregada = ["si", "sí", "se entrega pulsera"].includes(entregado);
       resultados.push({
         id:           nombreHoja + "::" + (i + 1),
         nombre:       nombre,
@@ -84,8 +94,8 @@ function accionBuscar(query) {
 // ================================================================
 //  ACCION: LISTAR (paginada)
 // ================================================================
-function accionListar(pagina, porPagina) {
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+function accionListar(ssId, pagina, porPagina) {
+  const ss = SpreadsheetApp.openById(ssId);
   const todos = [];
   let totalEntregadas = 0;
   let totalPendientes = 0;
@@ -98,7 +108,7 @@ function accionListar(pagina, porPagina) {
       const nombre = String(data[i][2]).trim();
       if (!nombre || nombre === "") continue;
       const entregado = String(data[i][6] || "").toLowerCase().trim();
-      const yaEntregada = ["si", "si", "se entrega pulsera"].includes(entregado);
+      const yaEntregada = ["si", "sí", "se entrega pulsera"].includes(entregado);
       if (yaEntregada) totalEntregadas++; else totalPendientes++;
       todos.push({
         id:           nombreHoja + "::" + (i + 1),
@@ -132,12 +142,12 @@ function accionListar(pagina, porPagina) {
 // ================================================================
 //  ACCION: ENTREGAR
 // ================================================================
-function accionEntregar(personas, colaborador) {
+function accionEntregar(ssId, personas, colaborador) {
   if (!personas || personas.length === 0) {
     return corsOutput({ ok: false, error: "No se enviaron personas para entregar" });
   }
 
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const ss = SpreadsheetApp.openById(ssId);
   const ahora = Utilities.formatDate(new Date(), "GMT-3", "dd/MM/yy HH:mm");
   const entregadas = [];
   const errores = [];
@@ -150,7 +160,7 @@ function accionEntregar(personas, colaborador) {
       if (isNaN(fila) || fila < 2) throw new Error("Fila invalida: " + p.fila);
 
       const estadoActual = String(sheet.getRange(fila, 7).getValue() || "").toLowerCase().trim();
-      const yaEntregada = ["si", "si", "se entrega pulsera"].includes(estadoActual);
+      const yaEntregada = ["si", "sí", "se entrega pulsera"].includes(estadoActual);
 
       if (yaEntregada) {
         entregadas.push({ id: p.hoja + "::" + fila, estado: "ya_entregada" });
