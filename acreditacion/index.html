@@ -555,13 +555,10 @@
 <div class="modal-overlay hidden" id="settingsModal">
   <div class="modal">
     <div class="modal-handle"></div>
-    <h3>⚙️ Configuracion</h3>
-    <label class="modal-label" for="scriptUrlInput">URL del Script de Google</label>
-    <input class="modal-input" id="scriptUrlInput" type="url"
-      placeholder="https://script.google.com/macros/s/..." />
+    <h3>👤 Cambiar nombre</h3>
     <label class="modal-label" for="colabNameModal">Tu nombre (colaborador)</label>
     <input class="modal-input" id="colabNameModal" type="text"
-      placeholder="Ej: Juan — Puerta Norte" />
+      placeholder="Ej: Juan — Puerta Norte" autocapitalize="words" />
     <div class="modal-btns">
       <button class="btn-modal-cancel" onclick="closeSettings()">Cancelar</button>
       <button class="btn-modal-save" onclick="saveSettings()">Guardar</button>
@@ -573,11 +570,22 @@
 <div class="toast" id="toast" role="alert"></div>
 
 <script>
-  // ===== CONFIG =====
-  const PASSWORD = "PULSERA2026";
+  // ===== CONFIG — MULTI-EVENTO =====
+  // Agregar aqui cada evento con su contrasena y URL de script
+  const EVENTOS = {
+    "EXTHOMBRES2026": {
+      nombre: "Extiendete de Hombres 2026",
+      scriptUrl: "https://script.google.com/macros/s/AKfycbxU0bTH8NIX1lpKvomyivxQtI8VY1F4HvceyMmqoqmdkp_RsQKr1or59XjvNLLe-oxm/exec"
+    },
+    "LUMINATE2026": {
+      nombre: "Luminate 2026",
+      scriptUrl: "" // <-- pegar aqui la URL del script de Luminate cuando este lista
+    }
+  };
   const TOKEN = "ACRED_EXTIENDETE_2026";
-  const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxU0bTH8NIX1lpKvomyivxQtI8VY1F4HvceyMmqoqmdkp_RsQKr1or59XjvNLLe-oxm/exec";
-  let SCRIPT_URL = localStorage.getItem("acred_script_url") || DEFAULT_SCRIPT_URL;
+
+  let SCRIPT_URL = "";
+  let EVENTO_NOMBRE = "";
   let COLAB_NAME = sessionStorage.getItem("acred_colab") || "";
 
   // ===== STATE =====
@@ -598,8 +606,8 @@
   }
 
   function doLogin() {
-    var pass = document.getElementById("passInput").value.trim();
-    var name = document.getElementById("colabName").value.trim();
+    var pass  = document.getElementById("passInput").value.trim().toUpperCase();
+    var name  = document.getElementById("colabName").value.trim();
     var errEl = document.getElementById("loginError");
 
     if (!name) {
@@ -607,19 +615,29 @@
       document.getElementById("colabName").focus();
       return;
     }
-    if (pass !== PASSWORD) {
+
+    // Buscar el evento que corresponde a esa contrasena
+    var evento = EVENTOS[pass];
+    if (!evento) {
       errEl.textContent = "Contrasena incorrecta. Intenta de nuevo.";
       document.getElementById("passInput").value = "";
       document.getElementById("passInput").focus();
       return;
     }
 
+    if (!evento.scriptUrl) {
+      errEl.textContent = "Este evento aun no tiene su sistema listo. Consulta al administrador.";
+      return;
+    }
+
+    SCRIPT_URL = evento.scriptUrl;
+    EVENTO_NOMBRE = evento.nombre;
     COLAB_NAME = name;
     sessionStorage.setItem("acred_colab", name);
     errEl.textContent = "";
     document.getElementById("loginScreen").classList.add("hidden");
     document.getElementById("app").classList.remove("hidden");
-    document.getElementById("headerUser").textContent = name;
+    document.getElementById("headerUser").textContent = name + " · " + EVENTO_NOMBRE;
     loadAll();
   }
 
@@ -632,7 +650,6 @@
 
   // ===== SETTINGS =====
   function openSettings() {
-    document.getElementById("scriptUrlInput").value = SCRIPT_URL;
     document.getElementById("colabNameModal").value = COLAB_NAME;
     document.getElementById("settingsModal").classList.remove("hidden");
   }
@@ -640,17 +657,14 @@
     document.getElementById("settingsModal").classList.add("hidden");
   }
   function saveSettings() {
-    var url  = document.getElementById("scriptUrlInput").value.trim();
     var name = document.getElementById("colabNameModal").value.trim();
-    if (url)  { SCRIPT_URL = url;  localStorage.setItem("acred_script_url", url); }
     if (name) {
       COLAB_NAME = name;
       sessionStorage.setItem("acred_colab", name);
-      document.getElementById("headerUser").textContent = name;
+      document.getElementById("headerUser").textContent = name + " · " + EVENTO_NOMBRE;
     }
     closeSettings();
-    showToast("Configuracion guardada ✓", "success");
-    if (allPersons.length === 0) loadAll();
+    showToast("Nombre actualizado ✓", "success");
   }
   document.getElementById("settingsModal").addEventListener("click", function(e) {
     if (e.target === this) closeSettings();
