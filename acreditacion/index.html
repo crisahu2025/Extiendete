@@ -460,7 +460,8 @@
     // ===== CONFIG =====
     const PASSWORD = "PULSERA2026";
     const TOKEN = "ACRED_EXTIENDETE_2026";
-    let SCRIPT_URL = localStorage.getItem("acred_script_url") || "";
+    const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzs3PAQW8jNoFICsZVp0Co_Ji_EsTDmdxa3EKOJOfnaVG57Ean_xBVENhoLo1rgu8Tr/exec";
+    let SCRIPT_URL = localStorage.getItem("acred_script_url") || DEFAULT_SCRIPT_URL;
     let COLAB_NAME = sessionStorage.getItem("acred_colab") || "";
 
     // ===== STATE =====
@@ -503,13 +504,7 @@
       document.getElementById("loginScreen").classList.add("hidden");
       document.getElementById("app").classList.remove("hidden");
       document.getElementById("headerUser").textContent = name;
-
-      if (!SCRIPT_URL) {
-        showToast("Primero configura la URL del Script", "error");
-        setTimeout(openSettings, 600);
-      } else {
-        loadAll();
-      }
+      loadAll();
     }
 
     document.getElementById("passInput").addEventListener("keydown", function(e) {
