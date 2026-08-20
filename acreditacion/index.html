@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+  <title>Acreditacion — Extiendete 2026</title>
+  <link rel="icon" type="image/png" href="../favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #e2f3f5;
+      --card: #ffffff;
+      --primary: #065f46;
+      --primary-light: rgba(6, 95, 70, 0.1);
+      --accent: #f97316;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #cbd5e1;
+      --green: #059669;
+      --green-bg: #ecfdf5;
+      --green-border: #6ee7b7;
+      --pending-bg: #fffbeb;
+      --pending-border: #fcd34d;
+      --selected-bg: #eff6ff;
+      --selected-border: #3b82f6;
+      --destructive: #ef4444;
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* LOGIN */
+    #loginScreen {
+      position: fixed; inset: 0; background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100; padding: 24px;
+    }
+    #loginScreen.hidden { display: none; }
+
+    .login-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 24px; padding: 48px 32px;
+      max-width: 380px; width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+    }
+
+    .login-logo {
+      width: 72px; height: 72px;
+      background: var(--primary-light);
+      border: 2px solid var(--primary); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px; margin: 0 auto 20px;
+    }
+
+    .login-card h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 18px; font-weight: 900; color: var(--accent);
+      letter-spacing: 1px; margin-bottom: 6px;
+    }
+
+    .login-card .sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+
+    .name-input-wrap { margin-bottom: 16px; }
+
+    .name-label {
+      display: block; font-size: 12px; font-weight: 600;
+      color: var(--muted); text-transform: uppercase;
+      letter-spacing: 0.5px; margin-bottom: 6px; text-align: left;
+    }
+
+    .name-input, .login-input {
+      width: 100%; padding: 14px 18px;
+      border: 2px solid var(--border); border-radius: var(--radius-sm);
+      font-size: 16px; font-family: 'Inter', sans-serif;
+      outline: none; background: #f8fafc; color: var(--text);
+      transition: border-color 0.2s;
+    }
+    .name-input:focus, .login-input:focus { border-color: var(--primary); }
+    .login-input.error { border-color: var(--destructive); }
+
+    .login-input-wrap { position: relative; margin-bottom: 12px; }
+    .login-input { padding-right: 48px; }
+
+    .toggle-pass {
+      position: absolute; right: 14px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      font-size: 20px; color: var(--muted); line-height: 1;
+    }
+
+    .error-msg { font-size: 12px; color: var(--destructive); margin-bottom: 12px; min-height: 16px; }
+
+    .btn-login {
+      width: 100%; padding: 15px;
+      background: var(--primary); color: white;
+      border: none; border-radius: var(--radius-sm);
+      font-size: 16px; font-weight: 700;
+      font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-login:hover { background: #047857; transform: translateY(-1px); }
+    .btn-login:active { transform: scale(0.98); }
+
+    /* APP */
+    #app { display: flex; flex-direction: column; min-height: 100vh; }
+    #app.hidden { display: none; }
+
+    .app-header {
+      background: var(--primary); color: white;
+      padding: 14px 16px;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      position: sticky; top: 0; z-index: 10;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    }
+
+    .header-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 13px; font-weight: 900; letter-spacing: 1px; line-height: 1.2;
+    }
+
+    .header-user { font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 2px; }
+
+    .stats-pill {
+      background: rgba(255,255,255,0.15); border-radius: 999px;
+      padding: 5px 10px; font-size: 11px; font-weight: 600;
+      white-space: nowrap; text-align: center; line-height: 1.4;
+    }
+    .stats-pill .num { font-size: 15px; font-weight: 900; display: block; }
+
+    .settings-btn {
+      background: rgba(255,255,255,0.15); border: none; border-radius: 8px;
+      width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 18px; color: white; transition: background 0.2s; flex-shrink: 0;
+    }
+    .settings-btn:hover { background: rgba(255,255,255,0.25); }
+
+    .search-wrap {
+      padding: 14px 14px 6px; background: var(--card);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 69px; z-index: 9;
+    }
+
+    .search-inner { position: relative; }
+
+    .search-icon {
+      position: absolute; left: 14px; top: 50%;
+      transform: translateY(-50%); font-size: 18px; pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%; padding: 12px 42px 12px 44px;
+      border: 2px solid var(--border); border-radius: 12px;
+      font-size: 16px; font-family: 'Inter', sans-serif; outline: none;
+      background: #f8fafc; color: var(--text); transition: border-color 0.2s;
+    }
+    .search-input:focus { border-color: var(--primary); }
+
+    .clear-btn {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: var(--border); border: none; border-radius: 50%;
+      width: 24px; height: 24px; font-size: 14px; cursor: pointer;
+      display: none; align-items: center; justify-content: center; color: var(--muted);
+    }
+    .clear-btn.visible { display: flex; }
+
+    .filter-tabs {
+      display: flex; gap: 8px; padding: 8px 14px 10px;
+      background: var(--card); border-bottom: 1px solid var(--border);
+      position: sticky; top: 131px; z-index: 8;
+    }
+
+    .tab {
+      flex: 1; padding: 7px 4px; border-radius: 8px;
+      border: 1.5px solid var(--border); background: transparent;
+      font-size: 11px; font-weight: 600; cursor: pointer;
+      color: var(--muted); font-family: 'Inter', sans-serif; transition: all 0.2s;
+    }
+    .tab.active { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
+
+    .loading-wrap {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 60px 20px; gap: 12px; color: var(--muted);
+    }
+
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--border); border-top-color: var(--primary);
+      border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .list-container { flex: 1; padding: 12px 14px 130px; }
+    .list-count { font-size: 12px; color: var(--muted); margin-bottom: 10px; font-weight: 500; }
+
+    .person-card {
+      background: var(--card); border: 2px solid var(--border);
+      border-radius: var(--radius); padding: 13px 14px; margin-bottom: 8px;
+      cursor: pointer; transition: all 0.18s ease;
+      display: flex; align-items: center; gap: 12px;
+      user-select: none; -webkit-tap-highlight-color: transparent;
+    }
+    .person-card:active { transform: scale(0.98); }
+    .person-card.pendiente { background: var(--pending-bg); border-color: var(--pending-border); }
+    .person-card.selected { background: var(--selected-bg); border-color: var(--selected-border); }
+    .person-card.entregada { background: var(--green-bg); border-color: var(--green-border); cursor: default; opacity: 0.88; }
+
+    .checkbox {
+      width: 26px; height: 26px; border-radius: 8px; border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; flex-shrink: 0; transition: all 0.18s; background: white;
+    }
+    .person-card.selected .checkbox { background: var(--selected-border); border-color: var(--selected-border); color: white; }
+    .person-card.entregada .checkbox { background: var(--green); border-color: var(--green); color: white; }
+
+    .person-info { flex: 1; min-width: 0; }
+    .person-name { font-size: 15px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .person-meta { font-size: 11px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .delivery-info { font-size: 10px; color: var(--green); margin-top: 3px; }
+
+    .person-tag { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 999px; flex-shrink: 0; letter-spacing: 0.5px; }
+    .tag-pending { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+    .tag-done { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+    .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; line-height: 1.6; }
+
+    .pagination { display: flex; justify-content: center; align-items: center; gap: 12px; padding: 16px; }
+    .page-btn {
+      padding: 8px 20px; border-radius: 8px; border: 1.5px solid var(--border);
+      background: var(--card); font-size: 13px; font-weight: 600;
+      cursor: pointer; color: var(--text); font-family: 'Inter', sans-serif; transition: all 0.2s;
+    }
+    .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .page-btn:not(:disabled):hover { border-color: var(--primary); color: var(--primary); }
+    .page-info { font-size: 12px; color: var(--muted); }
+
+    /* FAB */
+    .fab-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--card); border-top: 2px solid var(--border); padding: 12px 16px;
+      z-index: 20; transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .fab-bar.visible { transform: translateY(0); }
+
+    .fab-inner { max-width: 500px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+
+    .fab-count .num { font-size: 22px; font-weight: 900; color: var(--primary); line-height: 1; }
+    .fab-count .lbl { font-size: 10px; color: var(--muted); font-weight: 600; line-height: 1; }
+
+    .btn-deliver {
+      flex: 1; padding: 14px 16px;
+      background: var(--primary); color: white;
+      border: none; border-radius: var(--radius-sm);
+      font-size: 15px; font-weight: 700; font-family: 'Inter', sans-serif;
+      cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-deliver:hover { background: #047857; }
+    .btn-deliver:active { transform: scale(0.97); }
+    .btn-deliver:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .btn-cancel-sel {
+      padding: 14px 12px; background: transparent;
+      border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      color: var(--muted); font-family: 'Inter', sans-serif;
+      white-space: nowrap; transition: all 0.2s;
+    }
+    .btn-cancel-sel:hover { border-color: var(--destructive); color: var(--destructive); }
+
+    /* TOAST */
+    .toast {
+      position: fixed; bottom: 90px; left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #1e293b; color: white;
+      padding: 12px 20px; border-radius: 12px;
+      font-size: 14px; font-weight: 600; white-space: nowrap;
+      opacity: 0; transition: all 0.3s; z-index: 30;
+      max-width: calc(100vw - 32px); text-align: center;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.success { background: var(--green); }
+    .toast.error { background: var(--destructive); }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      z-index: 50; display: flex; align-items: flex-end;
+      justify-content: center; padding: 16px;
+    }
+    .modal-overlay.hidden { display: none; }
+
+    .modal {
+      background: var(--card); border-radius: 24px 24px 16px 16px;
+      padding: 28px 24px; width: 100%; max-width: 500px;
+      animation: slideUpM 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes slideUpM { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    .modal h3 { font-size: 16px; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+    .modal-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; display: block; }
+    .modal-input {
+      width: 100%; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 10px;
+      font-size: 14px; font-family: 'Inter', sans-serif; outline: none; margin-bottom: 16px;
+      background: #f8fafc; color: var(--text); transition: border-color 0.2s;
+    }
+    .modal-input:focus { border-color: var(--primary); }
+    .modal-btns { display: flex; gap: 10px; }
+    .btn-modal-save {
+      flex: 1; padding: 12px; background: var(--primary); color: white;
+      border: none; border-radius: 10px; font-size: 14px; font-weight: 700;
+      cursor: pointer; font-family: 'Inter', sans-serif;
+    }
+    .btn-modal-cancel {
+      padding: 12px 16px; background: transparent; border: 1.5px solid var(--border);
+      border-radius: 10px; font-size: 14px; cursor: pointer; color: var(--muted);
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Refresh button */
+    .refresh-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: none; border: 1.5px solid var(--border);
+      border-radius: 8px; padding: 6px 12px;
+      font-size: 12px; font-weight: 600; color: var(--muted);
+      cursor: pointer; font-family: 'Inter', sans-serif;
+      transition: all 0.2s; margin-bottom: 10px;
+    }
+    .refresh-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .refresh-btn.spinning span { animation: spin 0.8s linear infinite; display: inline-block; }
+  </style>
+</head>
+
+<body>
+
+  <!-- LOGIN -->
+  <div id="loginScreen">
+    <div class="login-card">
+      <div class="login-logo">🎫</div>
+      <h1>ACREDITACION</h1>
+      <p class="sub">Extiendete de Hombres 2026</p>
+
+      <div class="name-input-wrap">
+        <label class="name-label">Tu nombre (colaborador)</label>
+        <input class="name-input" id="colabName" type="text"
+          placeholder="Ej: Juan - Puerta Norte" autocomplete="off" />
+      </div>
+
+      <div class="login-input-wrap">
+        <input class="login-input" id="passInput" type="password"
+          placeholder="Contrasena de acceso" autocomplete="off" />
+        <button class="toggle-pass" onclick="togglePass()" type="button">👁</button>
+      </div>
+      <div class="error-msg" id="loginError"></div>
+
+      <button class="btn-login" onclick="doLogin()">Ingresar &rarr;</button>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <div id="app" class="hidden">
+
+    <div class="app-header">
+      <div style="flex:1; min-width:0">
+        <div class="header-title">PULSERAS</div>
+        <div class="header-user" id="headerUser"></div>
+      </div>
+      <div class="stats-pill">
+        <span class="num" id="statEntregadas">-</span>
+        <span>entregadas</span>
+      </div>
+      <div class="stats-pill">
+        <span class="num" id="statPendientes">-</span>
+        <span>pendientes</span>
+      </div>
+      <button class="settings-btn" onclick="openSettings()" title="Configuracion">&#9881;</button>
+    </div>
+
+    <div class="search-wrap">
+      <div class="search-inner">
+        <span class="search-icon">&#128269;</span>
+        <input class="search-input" id="searchInput" type="text"
+          placeholder="Buscar por nombre..." autocomplete="off" />
+        <button class="clear-btn" id="clearBtn" onclick="clearSearch()">&#10005;</button>
+      </div>
+    </div>
+
+    <div class="filter-tabs">
+      <button class="tab active" id="tabAll" onclick="setFilter('all')">Todos</button>
+      <button class="tab" id="tabPending" onclick="setFilter('pending')">Pendientes</button>
+      <button class="tab" id="tabDone" onclick="setFilter('done')">Entregadas</button>
+    </div>
+
+    <div class="list-container" id="listContainer">
+      <div class="loading-wrap" id="loadingWrap">
+        <div class="spinner"></div>
+        <p>Cargando asistentes...</p>
+      </div>
+      <button class="refresh-btn" id="refreshBtn" onclick="refreshData()" style="display:none">
+        <span>&#8635;</span> Actualizar lista
+      </button>
+      <div id="personList"></div>
+      <div class="pagination" id="paginationWrap" style="display:none">
+        <button class="page-btn" id="btnPrev" onclick="changePage(-1)">&#8592; Anterior</button>
+        <span class="page-info" id="pageInfo"></span>
+        <button class="page-btn" id="btnNext" onclick="changePage(1)">Siguiente &#8594;</button>
+      </div>
+    </div>
+
+    <div class="fab-bar" id="fabBar">
+      <div class="fab-inner">
+        <div class="fab-count">
+          <div class="num" id="fabCount">0</div>
+          <div class="lbl">selec.</div>
+        </div>
+        <button class="btn-deliver" id="btnDeliver" onclick="entregarSeleccionados()">
+          &#10003; Entregar Pulsera(s)
+        </button>
+        <button class="btn-cancel-sel" onclick="clearSelection()">Cancelar</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay hidden" id="settingsModal">
+    <div class="modal">
+      <h3>&#9881; Configuracion</h3>
+      <label class="modal-label">URL del Script de Google</label>
+      <input class="modal-input" id="scriptUrlInput" type="text"
+        placeholder="https://script.google.com/macros/s/..." />
+      <label class="modal-label">Tu nombre (colaborador)</label>
+      <input class="modal-input" id="colabNameModal" type="text"
+        placeholder="Ej: Juan - Puerta Norte" />
+      <div class="modal-btns">
+        <button class="btn-modal-cancel" onclick="closeSettings()">Cancelar</button>
+        <button class="btn-modal-save" onclick="saveSettings()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ===== CONFIG =====
+    const PASSWORD = "PULSERA2026";
+    const TOKEN = "ACRED_EXTIENDETE_2026";
+    let SCRIPT_URL = localStorage.getItem("acred_script_url") || "";
+    let COLAB_NAME = sessionStorage.getItem("acred_colab") || "";
+
+    // ===== STATE =====
+    let allPersons = [];
+    let filteredPersons = [];
+    let selectedIds = new Set();
+    let currentPage = 1;
+    const PER_PAGE = 50;
+    let currentFilter = "all";
+    let searchDebounce = null;
+    let isSearchMode = false;
+    let estadisticas = { totalEntregadas: 0, totalPendientes: 0, total: 0 };
+
+    // ===== LOGIN =====
+    function togglePass() {
+      const inp = document.getElementById("passInput");
+      inp.type = inp.type === "password" ? "text" : "password";
+    }
+
+    function doLogin() {
+      const pass = document.getElementById("passInput").value.trim();
+      const name = document.getElementById("colabName").value.trim();
+      const errEl = document.getElementById("loginError");
+
+      if (!name) {
+        errEl.textContent = "Ingresa tu nombre antes de entrar.";
+        document.getElementById("colabName").focus();
+        return;
+      }
+      if (pass !== PASSWORD) {
+        errEl.textContent = "Contrasena incorrecta.";
+        document.getElementById("passInput").value = "";
+        document.getElementById("passInput").focus();
+        return;
+      }
+
+      COLAB_NAME = name;
+      sessionStorage.setItem("acred_colab", name);
+      errEl.textContent = "";
+      document.getElementById("loginScreen").classList.add("hidden");
+      document.getElementById("app").classList.remove("hidden");
+      document.getElementById("headerUser").textContent = name;
+
+      if (!SCRIPT_URL) {
+        showToast("Primero configura la URL del Script", "error");
+        setTimeout(openSettings, 600);
+      } else {
+        loadAll();
+      }
+    }
+
+    document.getElementById("passInput").addEventListener("keydown", function(e) {
+      if (e.key === "Enter") doLogin();
+    });
+    document.getElementById("colabName").addEventListener("keydown", function(e) {
+      if (e.key === "Enter") document.getElementById("passInput").focus();
+    });
+
+    // ===== SETTINGS =====
+    function openSettings() {
+      document.getElementById("scriptUrlInput").value = SCRIPT_URL;
+      document.getElementById("colabNameModal").value = COLAB_NAME;
+      document.getElementById("settingsModal").classList.remove("hidden");
+    }
+    function closeSettings() {
+      document.getElementById("settingsModal").classList.add("hidden");
+    }
+    function saveSettings() {
+      const url = document.getElementById("scriptUrlInput").value.trim();
+      const name = document.getElementById("colabNameModal").value.trim();
+      if (url) { SCRIPT_URL = url; localStorage.setItem("acred_script_url", url); }
+      if (name) {
+        COLAB_NAME = name;
+        sessionStorage.setItem("acred_colab", name);
+        document.getElementById("headerUser").textContent = name;
+      }
+      closeSettings();
+      showToast("Configuracion guardada", "success");
+      if (allPersons.length === 0 && SCRIPT_URL) loadAll();
+    }
+
+    // Close modal clicking overlay
+    document.getElementById("settingsModal").addEventListener("click", function(e) {
+      if (e.target === this) closeSettings();
+    });
+
+    // ===== SEARCH =====
+    document.getElementById("searchInput").addEventListener("input", function() {
+      const val = this.value.trim();
+      document.getElementById("clearBtn").classList.toggle("visible", val.length > 0);
+      clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(function() {
+        currentPage = 1;
+        isSearchMode = val.length > 0;
+        if (isSearchMode) {
+          buscarEnServidor(val);
+        } else {
+          applyFilterAndRender();
+        }
+      }, 380);
+    });
+
+    function clearSearch() {
+      document.getElementById("searchInput").value = "";
+      document.getElementById("clearBtn").classList.remove("visible");
+      currentPage = 1;
+      isSearchMode = false;
+      applyFilterAndRender();
+    }
+
+    // ===== FILTERS =====
+    function setFilter(f) {
+      currentFilter = f;
+      currentPage = 1;
+      document.getElementById("tabAll").classList.toggle("active", f === "all");
+      document.getElementById("tabPending").classList.toggle("active", f === "pending");
+      document.getElementById("tabDone").classList.toggle("active", f === "done");
+      applyFilterAndRender();
+    }
+
+    // ===== DATA =====
+    async function loadAll() {
+      if (!SCRIPT_URL) return;
+      showLoading();
+      try {
+        const res = await callScript({ action: "listar", pagina: 1, porPagina: 9999 });
+        if (res.ok) {
+          allPersons = res.resultados;
+          estadisticas = res.estadisticas;
+          updateStats();
+          applyFilterAndRender();
+          document.getElementById("refreshBtn").style.display = "flex";
+        } else {
+          showError("Error al cargar: " + (res.error || "desconocido"));
+        }
+      } catch (e) {
+        showError("No se pudo conectar. Verifica la URL del Script en Configuracion.");
+      }
+    }
+
+    async function refreshData() {
+      const btn = document.getElementById("refreshBtn");
+      btn.classList.add("spinning");
+      btn.disabled = true;
+      await loadAll();
+      btn.classList.remove("spinning");
+      btn.disabled = false;
+      showToast("Lista actualizada", "success");
+    }
+
+    async function buscarEnServidor(q) {
+      if (!SCRIPT_URL) return;
+      showLoading();
+      try {
+        const res = await callScript({ action: "buscar", query: q });
+        if (res.ok) {
+          renderPersons(res.resultados, true);
+        } else {
+          showError(res.error || "Error en busqueda");
+        }
+      } catch (e) {
+        showError("Error de conexion.");
+      }
+    }
+
+    function applyFilterAndRender() {
+      var list = allPersons.slice();
+      if (currentFilter === "pending") list = list.filter(function(p) { return !p.entregada; });
+      if (currentFilter === "done")    list = list.filter(function(p) { return p.entregada; });
+      filteredPersons = list;
+      renderPersons(list, false);
+    }
+
+    // ===== RENDER =====
+    function renderPersons(list, searchResults) {
+      hideLoading();
+      var container = document.getElementById("personList");
+      var pagWrap = document.getElementById("paginationWrap");
+
+      if (list.length === 0) {
+        container.innerHTML = '<div class="empty-state"><div class="icon">&#128269;</div><p>No se encontraron resultados.<br>Intenta con otro nombre o filtro.</p></div>';
+        pagWrap.style.display = "none";
+        return;
+      }
+
+      var shown = list;
+      var needsPag = !searchResults && list.length > PER_PAGE;
+
+      if (needsPag) {
+        var start = (currentPage - 1) * PER_PAGE;
+        shown = list.slice(start, start + PER_PAGE);
+        var totalPags = Math.ceil(list.length / PER_PAGE);
+        document.getElementById("btnPrev").disabled = currentPage <= 1;
+        document.getElementById("btnNext").disabled = currentPage >= totalPags;
+        document.getElementById("pageInfo").textContent = "Pag. " + currentPage + " de " + totalPags;
+        pagWrap.style.display = "flex";
+      } else {
+        pagWrap.style.display = "none";
+      }
+
+      var countText = list.length + " persona(s)";
+      if (needsPag) {
+        var s = (currentPage - 1) * PER_PAGE + 1;
+        var en = Math.min(currentPage * PER_PAGE, list.length);
+        countText += " &mdash; mostrando " + s + "-" + en;
+      }
+
+      var html = '<p class="list-count">' + countText + '</p>';
+
+      shown.forEach(function(p) {
+        var isSel = selectedIds.has(p.id);
+        var cardClass = "person-card";
+        if (p.entregada) cardClass += " entregada";
+        else if (isSel) cardClass += " selected";
+        else cardClass += " pendiente";
+
+        var checkIcon = (p.entregada || isSel) ? "&#10003;" : "";
+        var tag = p.entregada
+          ? '<span class="person-tag tag-done">Entregada</span>'
+          : '<span class="person-tag tag-pending">Pendiente</span>';
+
+        var delivery = p.entregada
+          ? '<div class="delivery-info">por ' + escapeHtml(p.entregadaPor || "?") + " &mdash; " + escapeHtml(p.fechaEntrega || "") + '</div>'
+          : "";
+
+        var clickAttr = p.entregada ? "" : 'onclick="toggleSelect(\'' + p.id.replace(/'/g, "\\'") + '\')"';
+
+        var safeId = p.id.replace(/[^a-zA-Z0-9_-]/g, "_");
+
+        html += '<div class="' + cardClass + '" id="card_' + safeId + '" ' + clickAttr + '>' +
+          '<div class="checkbox">' + checkIcon + '</div>' +
+          '<div class="person-info">' +
+            '<div class="person-name">' + escapeHtml(p.nombre) + '</div>' +
+            '<div class="person-meta">' + escapeHtml(p.ciudad) + (p.tipo ? " &middot; " + escapeHtml(p.tipo) : "") + '</div>' +
+            delivery +
+          '</div>' +
+          tag +
+          '</div>';
+      });
+
+      container.innerHTML = html;
+
+      // Store reference mapping for DOM updates
+      window._renderedPersons = shown;
+      window._renderedSafeIds = {};
+      shown.forEach(function(p) {
+        var safeId = p.id.replace(/[^a-zA-Z0-9_-]/g, "_");
+        window._renderedSafeIds[p.id] = safeId;
+      });
+    }
+
+    function changePage(delta) {
+      currentPage += delta;
+      applyFilterAndRender();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    // ===== SELECTION =====
+    function toggleSelect(id) {
+      if (selectedIds.has(id)) selectedIds.delete(id);
+      else selectedIds.add(id);
+      updateFab();
+
+      // Update card visually
+      var safeId = id.replace(/[^a-zA-Z0-9_-]/g, "_");
+      var card = document.getElementById("card_" + safeId);
+      if (!card) return;
+      var isSel = selectedIds.has(id);
+      card.className = "person-card " + (isSel ? "selected" : "pendiente");
+      card.querySelector(".checkbox").innerHTML = isSel ? "&#10003;" : "";
+    }
+
+    function clearSelection() {
+      selectedIds.clear();
+      updateFab();
+      applyFilterAndRender();
+    }
+
+    function updateFab() {
+      var fab = document.getElementById("fabBar");
+      var count = selectedIds.size;
+      document.getElementById("fabCount").textContent = count;
+      if (count > 0) fab.classList.add("visible");
+      else fab.classList.remove("visible");
+    }
+
+    // ===== DELIVER =====
+    async function entregarSeleccionados() {
+      if (selectedIds.size === 0) return;
+      if (!SCRIPT_URL) { showToast("Configura la URL del Script.", "error"); return; }
+
+      var btn = document.getElementById("btnDeliver");
+      btn.disabled = true;
+      btn.textContent = "Guardando...";
+
+      var personas = [];
+      selectedIds.forEach(function(id) {
+        var p = allPersons.find(function(x) { return x.id === id; });
+        if (p) personas.push({ hoja: p.hoja, fila: p.fila });
+      });
+
+      try {
+        var res = await callScript({ action: "entregar", personas: personas, colaborador: COLAB_NAME });
+        if (res.ok || (res.entregadas && res.entregadas.length > 0)) {
+          var count = res.entregadas ? res.entregadas.length : personas.length;
+          showToast(count + " pulsera(s) entregada(s)!", "success");
+          selectedIds.clear();
+          updateFab();
+          await loadAll();
+        } else {
+          showToast("Error: " + (res.error || "no se pudo guardar"), "error");
+        }
+      } catch (e) {
+        showToast("Error de conexion al guardar.", "error");
+      }
+
+      btn.disabled = false;
+      btn.textContent = "Entregar Pulsera(s)";
+    }
+
+    // ===== STATS =====
+    function updateStats() {
+      document.getElementById("statEntregadas").textContent = estadisticas.totalEntregadas !== undefined ? estadisticas.totalEntregadas : "-";
+      document.getElementById("statPendientes").textContent = estadisticas.totalPendientes !== undefined ? estadisticas.totalPendientes : "-";
+    }
+
+    // ===== UTILS =====
+    async function callScript(body) {
+      var response = await fetch(SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify(Object.assign({}, body, { token: TOKEN }))
+      });
+      return response.json();
+    }
+
+    function showLoading() {
+      document.getElementById("loadingWrap").style.display = "flex";
+      document.getElementById("personList").innerHTML = "";
+      document.getElementById("paginationWrap").style.display = "none";
+    }
+
+    function hideLoading() {
+      document.getElementById("loadingWrap").style.display = "none";
+    }
+
+    function showError(msg) {
+      hideLoading();
+      document.getElementById("personList").innerHTML =
+        '<div class="empty-state"><div class="icon">&#9888;</div><p>' + msg + '</p></div>';
+    }
+
+    var toastTimer;
+    function showToast(msg, type) {
+      var t = document.getElementById("toast");
+      t.textContent = msg;
+      t.className = "toast" + (type ? " " + type : "");
+      clearTimeout(toastTimer);
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() { t.classList.add("show"); });
+      });
+      toastTimer = setTimeout(function() { t.classList.remove("show"); }, 3200);
+    }
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+  </script>
+</body>
+</html>
