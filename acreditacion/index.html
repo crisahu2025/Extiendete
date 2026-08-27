@@ -188,6 +188,32 @@
     }
     .icon-btn:active { background: #27272a; border-color: var(--primary); }
 
+    .btn-cash-register {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #000000;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      font-size: 11.5px;
+      letter-spacing: 0.5px;
+      padding: 7px 12px;
+      border-radius: var(--r-sm);
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
+      transition: all 0.2s;
+      white-space: nowrap;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-cash-register:hover {
+      background: #16a34a;
+      transform: translateY(-1px);
+      box-shadow: 0 0 20px rgba(34, 197, 94, 0.45);
+    }
+
     /* SEARCH */
     .search-wrap {
       background: #000000;
@@ -547,7 +573,9 @@
       <span class="n" id="statPendientes">-</span>
       <span class="l">pendientes</span>
     </div>
-    <button class="icon-btn" onclick="openSettings()" aria-label="Configuracion">⚙️</button>
+    <button class="btn-cash-register" onclick="openCobroPuertaModal()" title="Cobro en Puerta / Anotar Persona en Efectivo">💵 Cobro Efectivo</button>
+    <button class="icon-btn" onclick="openSettings()" aria-label="Configuracion" title="Configuración">⚙️</button>
+    <button class="icon-btn" onclick="cerrarSesionAcred('manual')" aria-label="Cerrar Sesion" title="Cerrar Sesión" style="color: #ef4444;">🚪</button>
   </header>
 
   <!-- Search -->
@@ -601,17 +629,84 @@
 
 </div>
 
+<!-- Modal Cobro en Puerta / Anotar Efectivo -->
+<div class="modal-overlay hidden" id="cobroPuertaModal">
+  <div class="modal" style="max-width: 480px;">
+    <div class="modal-handle"></div>
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px;">
+      <span style="font-size: 26px;">💵</span>
+      <div>
+        <h3 style="margin-bottom: 2px;">Cobro en Puerta</h3>
+        <p style="font-size: 12px; color: var(--muted);">Anotar persona en efectivo y entregar pulsera</p>
+      </div>
+    </div>
+
+    <div class="field-group" style="margin-bottom: 10px;">
+      <label class="modal-label" for="cpNombre">Nombre y Apellido *</label>
+      <input class="modal-input" id="cpNombre" type="text" placeholder="Ej: Lucas González" autocapitalize="words" required />
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+      <div class="field-group" style="margin-bottom: 10px;">
+        <label class="modal-label" for="cpCiudad">Ciudad / Iglesia</label>
+        <input class="modal-input" id="cpCiudad" type="text" placeholder="Ej: San Nicolás" autocapitalize="words" />
+      </div>
+      <div class="field-group" style="margin-bottom: 10px;">
+        <label class="modal-label" for="cpTelefono">Teléfono / WhatsApp</label>
+        <input class="modal-input" id="cpTelefono" type="tel" placeholder="Ej: 336..." />
+      </div>
+    </div>
+
+    <div class="field-group" style="margin-bottom: 10px;">
+      <label class="modal-label" for="cpTipo">Tipo de Entrada / Tarifa</label>
+      <select class="modal-input" id="cpTipo" style="height: var(--touch);">
+        <option value="ENTRADA GENERAL">🎫 Entrada General</option>
+        <option value="CONGRESO COMPLETO">👑 Congreso Completo</option>
+        <option value="PASE DIA">⚡ Pase por Día</option>
+      </select>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); padding: 10px 14px; border-radius: var(--r-sm);">
+      <input type="checkbox" id="cpEntregarPulsera" checked style="width: 20px; height: 20px; accent-color: #22c55e; cursor: pointer;" />
+      <label for="cpEntregarPulsera" style="font-size: 13px; font-weight: 600; color: #22c55e; cursor: pointer;">
+        Marcar pulsera como entregada ahora
+      </label>
+    </div>
+
+    <div class="field-group" style="margin-bottom: 14px; background: rgba(250, 204, 21, 0.08); border: 1.5px solid var(--primary); padding: 12px 14px; border-radius: var(--r-sm);">
+      <label class="modal-label" for="cpAuthPass" style="color: var(--primary); font-weight: 900;">🔐 Contraseña de Autorización *</label>
+      <div class="pass-wrap">
+        <input class="modal-input" id="cpAuthPass" type="password" placeholder="Ingresá la contraseña de autorización..." style="margin-bottom: 0;" />
+        <button class="toggle-pass" onclick="togglePassCobro()" type="button" aria-label="Ver clave" style="top: 0;">👁</button>
+      </div>
+      <div class="error-msg" id="cpError" style="margin-top: 4px; margin-bottom: 0;"></div>
+    </div>
+
+    <div class="modal-btns">
+      <button class="btn-modal-cancel" onclick="closeCobroPuertaModal()">Cancelar</button>
+      <button class="btn-modal-save" id="btnSaveCobro" onclick="guardarCobroPuerta()" style="background: var(--green); color: #000;">
+        💾 Guardar Registro
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Settings Modal -->
 <div class="modal-overlay hidden" id="settingsModal">
   <div class="modal">
     <div class="modal-handle"></div>
-    <h3>👤 Cambiar nombre</h3>
+    <h3>👤 Configuración de Colaborador</h3>
     <label class="modal-label" for="colabNameModal">Tu nombre (colaborador)</label>
     <input class="modal-input" id="colabNameModal" type="text"
       placeholder="Ej: Juan — Puerta Norte" autocapitalize="words" />
     <div class="modal-btns">
       <button class="btn-modal-cancel" onclick="closeSettings()">Cancelar</button>
       <button class="btn-modal-save" onclick="saveSettings()">Guardar</button>
+    </div>
+    <div style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 14px;">
+      <button onclick="closeSettings(); cerrarSesionAcred('manual');" style="width: 100%; height: 44px; background: rgba(239, 68, 68, 0.12); border: 1px solid #ef4444; border-radius: var(--r-sm); color: #ef4444; font-weight: 700; font-size: 14px; cursor: pointer;">
+        🚪 Cerrar Sesión
+      </button>
     </div>
   </div>
 </div>
@@ -622,7 +717,7 @@
 <script>
   // ===== CONFIG — MULTI-EVENTO UNIFICADO =====
   // Un solo script maneja ambas planillas
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbytxJeoxaWdnqsFr4aQkSMQklUUnXMJ4xmRN3E9-g4LVBQEpRlBSHB_MiyITPA0Mz5F/exec";
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyGxkaGj-fiOd3W5H-5TuRYFHkxzmo-ud0Ck8Wdr5bXCKuIQwmMT-DGnRg6ncMrJXnI-Q/exec";
   const EVENTOS = {
     "EXTHOMBRES2026": {
       clave: "EXTHOMBRES",
@@ -649,6 +744,99 @@
   let searchDebounce = null;
   let isSearchMode = false;
   let estadisticas = { totalEntregadas: 0, totalPendientes: 0 };
+
+  // ===== CONTROL DE INACTIVIDAD (30 MINUTOS) =====
+  let acredInactivityTimer = null;
+  const ACRED_INACTIVITY_LIMIT_MS = 30 * 60 * 1000; // 30 minutos
+
+  function initAcredInactivityTracker() {
+    if (!sessionStorage.getItem("acred_colab")) return;
+
+    const resetTimer = () => {
+      if (acredInactivityTimer) clearTimeout(acredInactivityTimer);
+      acredInactivityTimer = setTimeout(onAcredInactivityTimeout, ACRED_INACTIVITY_LIMIT_MS);
+    };
+
+    const activityEvents = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'pointerdown', 'click'];
+    activityEvents.forEach(evt => {
+      window.addEventListener(evt, resetTimer, { passive: true });
+    });
+
+    resetTimer();
+  }
+
+  function onAcredInactivityTimeout() {
+    cerrarSesionAcred('inactivity');
+  }
+
+  function cerrarSesionAcred(reason) {
+    if (acredInactivityTimer) {
+      clearTimeout(acredInactivityTimer);
+      acredInactivityTimer = null;
+    }
+    // Limpieza estricta de almacenamiento
+    sessionStorage.removeItem("acred_colab");
+    sessionStorage.removeItem("acred_evento_clave");
+    sessionStorage.removeItem("acred_evento_nombre");
+    sessionStorage.removeItem("acred_logged");
+    localStorage.removeItem("acred_colab");
+
+    // Destrucción total de estado en memoria
+    allPersons = [];
+    filteredPersons = [];
+    selectedIds.clear();
+    COLAB_NAME = "";
+    EVENTO_CLAVE = "EXTHOMBRES";
+    EVENTO_NOMBRE = "";
+    estadisticas = { totalEntregadas: 0, totalPendientes: 0 };
+    isSearchMode = false;
+    currentPage = 1;
+
+    // Limpieza de DOM y campos de entrada
+    const personList = document.getElementById("personList");
+    if (personList) personList.innerHTML = "";
+    const passInp = document.getElementById("passInput");
+    if (passInp) passInp.value = "";
+    const searchInp = document.getElementById("searchInput");
+    if (searchInp) searchInp.value = "";
+    const headerUser = document.getElementById("headerUser");
+    if (headerUser) headerUser.textContent = "";
+    const statE = document.getElementById("statEntregadas");
+    if (statE) statE.textContent = "-";
+    const statP = document.getElementById("statPendientes");
+    if (statP) statP.textContent = "-";
+
+    document.getElementById("app").classList.add("hidden");
+    document.getElementById("loginScreen").classList.remove("hidden");
+
+    if (reason === 'inactivity') {
+      showToast("⏳ Sesión cerrada por inactividad (30 min).", "warning");
+    } else {
+      showToast("Sesión cerrada correctamente.", "info");
+    }
+  }
+
+  // Protección contra navegación histórica (BFCache / Botón Atrás)
+  window.addEventListener('pageshow', function() {
+    if (!sessionStorage.getItem("acred_colab")) {
+      document.getElementById("app").classList.add("hidden");
+      document.getElementById("loginScreen").classList.remove("hidden");
+    }
+  });
+
+  document.addEventListener("DOMContentLoaded", function() {
+    localStorage.removeItem("acred_colab");
+    if (sessionStorage.getItem("acred_colab") && sessionStorage.getItem("acred_logged") === "true") {
+      COLAB_NAME = sessionStorage.getItem("acred_colab");
+      EVENTO_CLAVE = sessionStorage.getItem("acred_evento_clave") || "EXTHOMBRES";
+      EVENTO_NOMBRE = sessionStorage.getItem("acred_evento_nombre") || "Extiendete de Hombres 2026";
+      document.getElementById("loginScreen").classList.add("hidden");
+      document.getElementById("app").classList.remove("hidden");
+      document.getElementById("headerUser").textContent = COLAB_NAME + " · " + EVENTO_NOMBRE;
+      initAcredInactivityTracker();
+      loadAll();
+    }
+  });
 
   // ===== LOGIN =====
   function togglePass() {
@@ -679,12 +867,103 @@
     EVENTO_NOMBRE = evento.nombre;
     COLAB_NAME = name;
     sessionStorage.setItem("acred_colab", name);
+    sessionStorage.setItem("acred_evento_clave", evento.clave);
+    sessionStorage.setItem("acred_evento_nombre", evento.nombre);
+    sessionStorage.setItem("acred_logged", "true");
+    localStorage.removeItem("acred_colab");
     errEl.textContent = "";
     document.getElementById("loginScreen").classList.add("hidden");
     document.getElementById("app").classList.remove("hidden");
     document.getElementById("headerUser").textContent = name + " · " + EVENTO_NOMBRE;
+    initAcredInactivityTracker();
     loadAll();
   }
+
+  // ===== COBRO EN PUERTA / ANOTAR EN EFECTIVO (Requiere contraseña IARAHACKER26) =====
+  function openCobroPuertaModal() {
+    document.getElementById("cpNombre").value = "";
+    document.getElementById("cpCiudad").value = "";
+    document.getElementById("cpTelefono").value = "";
+    document.getElementById("cpTipo").value = "ENTRADA GENERAL";
+    document.getElementById("cpEntregarPulsera").checked = true;
+    document.getElementById("cpAuthPass").value = "";
+    document.getElementById("cpError").textContent = "";
+    document.getElementById("cobroPuertaModal").classList.remove("hidden");
+    setTimeout(function() { document.getElementById("cpNombre").focus(); }, 250);
+  }
+
+  function closeCobroPuertaModal() {
+    document.getElementById("cobroPuertaModal").classList.add("hidden");
+  }
+
+  function togglePassCobro() {
+    var inp = document.getElementById("cpAuthPass");
+    inp.type = inp.type === "password" ? "text" : "password";
+  }
+
+  async function guardarCobroPuerta() {
+    var nombre = document.getElementById("cpNombre").value.trim();
+    var ciudad = document.getElementById("cpCiudad").value.trim();
+    var telefono = document.getElementById("cpTelefono").value.trim();
+    var tipo = document.getElementById("cpTipo").value.trim();
+    var entregarPulsera = document.getElementById("cpEntregarPulsera").checked;
+    var authPass = document.getElementById("cpAuthPass").value.trim().toUpperCase();
+    var errEl = document.getElementById("cpError");
+    var btnSave = document.getElementById("btnSaveCobro");
+
+    errEl.textContent = "";
+
+    if (!nombre) {
+      errEl.textContent = "⚠️ Ingresa el nombre y apellido.";
+      document.getElementById("cpNombre").focus();
+      return;
+    }
+
+    // EXIGIR OBLIGATORIAMENTE LA CONTRASEÑA "IARAHACKER26"
+    if (authPass !== "IARAHACKER26") {
+      errEl.textContent = "❌ Contraseña de autorización incorrecta.";
+      document.getElementById("cpAuthPass").value = "";
+      document.getElementById("cpAuthPass").focus();
+      return;
+    }
+
+    btnSave.disabled = true;
+    btnSave.textContent = "Guardando en planilla... ⏳";
+
+    try {
+      var payload = {
+        action: "registrarEfectivo",
+        nombre: nombre,
+        ciudad: ciudad || "San Nicolás",
+        telefono: telefono || "",
+        tipo: tipo,
+        autoAcreditar: entregarPulsera,
+        colaborador: COLAB_NAME || "Puerta",
+        authPass: authPass,
+        adminPassword: authPass
+      };
+
+      var res = await callScript(payload);
+
+      if (res.ok) {
+        showToast("✅ " + (res.mensaje || "Persona registrada y guardada exitosamente."), "success");
+        closeCobroPuertaModal();
+        await loadAll();
+      } else {
+        errEl.textContent = "❌ Error: " + (res.error || "No se pudo registrar.");
+      }
+    } catch (err) {
+      console.error(err);
+      errEl.textContent = "❌ Error de conexión al guardar.";
+    } finally {
+      btnSave.disabled = false;
+      btnSave.textContent = "💾 Guardar Registro";
+    }
+  }
+
+  document.getElementById("cobroPuertaModal").addEventListener("click", function(e) {
+    if (e.target === this) closeCobroPuertaModal();
+  });
 
   document.getElementById("passInput").addEventListener("keydown", function(e) {
     if (e.key === "Enter") doLogin();
