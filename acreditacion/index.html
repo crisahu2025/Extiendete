@@ -646,15 +646,9 @@
       <input class="modal-input" id="cpNombre" type="text" placeholder="Ej: Lucas González" autocapitalize="words" required />
     </div>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-      <div class="field-group" style="margin-bottom: 10px;">
-        <label class="modal-label" for="cpCiudad">Ciudad / Iglesia</label>
-        <input class="modal-input" id="cpCiudad" type="text" placeholder="Ej: San Nicolás" autocapitalize="words" />
-      </div>
-      <div class="field-group" style="margin-bottom: 10px;">
-        <label class="modal-label" for="cpTelefono">Teléfono / WhatsApp</label>
-        <input class="modal-input" id="cpTelefono" type="tel" placeholder="Ej: 336..." />
-      </div>
+    <div class="field-group" style="margin-bottom: 10px;">
+      <label class="modal-label" for="cpPastor">Pastor / Iglesia *</label>
+      <input class="modal-input" id="cpPastor" type="text" placeholder="Ej: Pastor Juan Pérez" autocapitalize="words" required />
     </div>
 
     <div class="field-group" style="margin-bottom: 10px;">
@@ -882,8 +876,7 @@
   // ===== COBRO EN PUERTA / ANOTAR EN EFECTIVO (Requiere contraseña IARAHACKER26) =====
   function openCobroPuertaModal() {
     document.getElementById("cpNombre").value = "";
-    document.getElementById("cpCiudad").value = "";
-    document.getElementById("cpTelefono").value = "";
+    document.getElementById("cpPastor").value = "";
     document.getElementById("cpTipo").value = "ENTRADA GENERAL";
     document.getElementById("cpEntregarPulsera").checked = true;
     document.getElementById("cpAuthPass").value = "";
@@ -903,8 +896,7 @@
 
   async function guardarCobroPuerta() {
     var nombre = document.getElementById("cpNombre").value.trim();
-    var ciudad = document.getElementById("cpCiudad").value.trim();
-    var telefono = document.getElementById("cpTelefono").value.trim();
+    var pastor = document.getElementById("cpPastor").value.trim();
     var tipo = document.getElementById("cpTipo").value.trim();
     var entregarPulsera = document.getElementById("cpEntregarPulsera").checked;
     var authPass = document.getElementById("cpAuthPass").value.trim().toUpperCase();
@@ -916,6 +908,12 @@
     if (!nombre) {
       errEl.textContent = "⚠️ Ingresa el nombre y apellido.";
       document.getElementById("cpNombre").focus();
+      return;
+    }
+
+    if (!pastor) {
+      errEl.textContent = "⚠️ Ingresa el nombre del pastor o iglesia.";
+      document.getElementById("cpPastor").focus();
       return;
     }
 
@@ -934,8 +932,9 @@
       var payload = {
         action: "registrarEfectivo",
         nombre: nombre,
-        ciudad: ciudad || "San Nicolás",
-        telefono: telefono || "",
+        pastor: pastor,
+        ciudad: "",
+        telefono: "",
         tipo: tipo,
         autoAcreditar: entregarPulsera,
         colaborador: COLAB_NAME || "Puerta",
