@@ -1,0 +1,9 @@
+﻿# Google Apps Script & Backend Server Scripts
+*.gs
+*APPS-SCRIPT*
+*bot_logic*
+*Script*.txt
+*.txt
+Luminate/
+bot_logic_updated.txt
+.gemini/

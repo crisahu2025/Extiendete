@@ -1,3 +1,15 @@
-bot_logic_updated.txt
-.gemini/
+# Google Apps Script & Backend Server Scripts
+*.gs
+*APPS-SCRIPT*
+*bot_logic*
+*Script*.txt
+*.txt
 Luminate/
+acreditacion/*.gs
+bot_logic_updated.txt
+
+# Deploy & Environment
+.vercel
+node_modules/
+.gemini/
+.env*
