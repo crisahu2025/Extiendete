@@ -13,3 +13,5 @@ bot_logic_updated.txt
 node_modules/
 .gemini/
 .env*
+
+.vercel
