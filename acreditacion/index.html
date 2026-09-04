@@ -368,6 +368,8 @@
     }
     .tag-pending { background: rgba(250, 204, 21, 0.12); color: var(--primary); border: 1px solid rgba(250, 204, 21, 0.4); }
     .tag-done { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+    .tag-presente { background: rgba(168, 85, 247, 0.18); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.5); }
+    .tag-roja { background: rgba(239, 68, 68, 0.18); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.5); }
 
     /* ESTADOS VACIOS */
     .loading-wrap {
@@ -652,12 +654,28 @@
     </div>
 
     <div class="field-group" style="margin-bottom: 10px;">
-      <label class="modal-label" for="cpTipo">Tipo de Entrada / Tarifa</label>
-      <select class="modal-input" id="cpTipo" style="height: var(--touch);">
-        <option value="ENTRADA GENERAL">🎫 Entrada General</option>
-        <option value="CONGRESO COMPLETO">👑 Congreso Completo</option>
-        <option value="PASE DIA">⚡ Pase por Día</option>
-      </select>
+      <label class="modal-label" for="cpCiudad">Ciudad</label>
+      <input class="modal-input" id="cpCiudad" type="text" placeholder="Ej: San Miguel" autocapitalize="words" />
+    </div>
+
+    <div class="field-group" style="margin-bottom: 10px;">
+      <label class="modal-label" for="cpLider">Líder (Opcional)</label>
+      <input class="modal-input" id="cpLider" type="text" placeholder="Ej: Líder Pedro" autocapitalize="words" />
+    </div>
+
+    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+      <div class="field-group" style="flex: 1; margin-bottom: 0;">
+        <label class="modal-label" for="cpMonto">Monto ($)</label>
+        <input class="modal-input" id="cpMonto" type="number" placeholder="Ej: 15000" />
+      </div>
+      <div class="field-group" style="flex: 1.5; margin-bottom: 0;">
+        <label class="modal-label" for="cpTipo">Entrada / Tarifa</label>
+        <select class="modal-input" id="cpTipo" style="height: var(--touch);">
+          <option value="ENTRADA GENERAL">🎫 Entrada General</option>
+          <option value="INDIVIDUAL">👤 Individual</option>
+          <option value="CONGRESO COMPLETO">👑 Congreso Completo</option>
+        </select>
+      </div>
     </div>
 
     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); padding: 10px 14px; border-radius: var(--r-sm);">
@@ -877,6 +895,9 @@
   function openCobroPuertaModal() {
     document.getElementById("cpNombre").value = "";
     document.getElementById("cpPastor").value = "";
+    document.getElementById("cpCiudad").value = "";
+    document.getElementById("cpLider").value = "";
+    document.getElementById("cpMonto").value = "";
     document.getElementById("cpTipo").value = "ENTRADA GENERAL";
     document.getElementById("cpEntregarPulsera").checked = true;
     document.getElementById("cpAuthPass").value = "";
@@ -897,6 +918,9 @@
   async function guardarCobroPuerta() {
     var nombre = document.getElementById("cpNombre").value.trim();
     var pastor = document.getElementById("cpPastor").value.trim();
+    var ciudad = document.getElementById("cpCiudad").value.trim();
+    var lider = document.getElementById("cpLider").value.trim();
+    var monto = document.getElementById("cpMonto").value.trim();
     var tipo = document.getElementById("cpTipo").value.trim();
     var entregarPulsera = document.getElementById("cpEntregarPulsera").checked;
     var authPass = document.getElementById("cpAuthPass").value.trim().toUpperCase();
@@ -933,8 +957,9 @@
         action: "registrarEfectivo",
         nombre: nombre,
         pastor: pastor,
-        ciudad: "",
-        telefono: "",
+        ciudad: ciudad,
+        lider: lider,
+        monto: monto,
         tipo: tipo,
         autoAcreditar: entregarPulsera,
         colaborador: COLAB_NAME || "Puerta",
@@ -1117,12 +1142,29 @@
       var click = p.entregada ? "" : 'onclick="toggleSelect(\'' + p.id.replace(/'/g, "\\'") + '\')"';
       var safeId = p.id.replace(/[^a-zA-Z0-9_-]/g, "_");
 
-      html += '<div class="' + cls + '" id="c_' + safeId + '" ' + click + '>' +
-        '<div class="checkbox">' + check + '</div>' +
-        '<div class="person-info">' +
-          '<div class="person-name">' + esc(p.nombre) + '</div>' +
-          '<div class="person-meta">' + esc(p.ciudad) + (p.tipo ? " · " + esc(p.tipo) : "") + '</div>' +
-          delivery +
+      var badgesHtml = "";
+      if (p.tienePresente) {
+        badgesHtml += '<span class="person-tag tag-presente" title="Corresponde Librito + Lapicera">📖 LIBRO</span>';
+      }
+      if (p.esPulseraRoja) {
+        badgesHtml += '<span class="person-tag tag-roja" title="Corresponde Pulsera Roja">🔴 P. ROJA</span>';
+      }
+
+          var metaDetails = [];
+          if (p.ciudad) metaDetails.push(esc(p.ciudad));
+          if (p.pastor) metaDetails.push("Pastor: " + esc(p.pastor));
+          if (p.lider) metaDetails.push("Líder: " + esc(p.lider));
+          if (p.tipo) metaDetails.push(esc(p.tipo));
+          var metaStr = metaDetails.length > 0 ? metaDetails.join(" · ") : "General";
+
+          html += '<div class="' + cls + '" id="c_' + safeId + '" ' + click + '>' +
+            '<div class="checkbox">' + check + '</div>' +
+            '<div class="person-info">' +
+              '<div class="person-name" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">' +
+                '<span>' + esc(p.nombre) + '</span>' + badgesHtml +
+              '</div>' +
+              '<div class="person-meta">' + metaStr + '</div>' +
+              delivery +
         '</div>' +
         tag +
         '</div>';
@@ -1182,7 +1224,19 @@
       var res = await callScript({ action: "entregar", personas: personas, colaborador: COLAB_NAME });
       if (res.ok || (res.entregadas && res.entregadas.length > 0)) {
         var count = res.entregadas ? res.entregadas.length : personas.length;
-        showToast("✅ " + count + " pulsera(s) entregada(s)!", "success");
+        var tieneLibro = false;
+        var tieneRoja = false;
+        personas.forEach(function(per) {
+          var matched = allPersons.find(function(x){ return x.hoja === per.hoja && x.fila === per.fila; });
+          if (matched && matched.tienePresente) tieneLibro = true;
+          if (matched && matched.esPulseraRoja) tieneRoja = true;
+        });
+
+        var extraAviso = "";
+        if (tieneLibro) extraAviso += " 📖 ¡ENTREGAR LIBRO!";
+        if (tieneRoja) extraAviso += " 🔴 ¡PULSERA ROJA!";
+
+        showToast("✅ " + count + " pulsera(s) entregada(s)!" + extraAviso, "success");
         selectedIds.clear();
         updateFab();
         await loadAll();
