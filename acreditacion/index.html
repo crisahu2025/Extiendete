@@ -1189,9 +1189,28 @@
           badgesHtml += '<span class="person-tag" style="background:#1e293b; color:#38bdf8; border:1px solid #0ea5e9;">' + esc(p.codigo || '') + '</span>';
         }
         badgesHtml += `<a href="https://preadolecentesextiendete.vercel.app/?ficha=${esc(p.codigo || '')}" target="_blank" class="person-tag" style="background:#0f172a; color:#38bdf8; border:1px solid #38bdf8; text-decoration:none; display:inline-flex; align-items:center; gap:4px; font-weight:600;" onclick="event.stopPropagation();" title="Abrir / Imprimir Ficha Oficial A4">📄 Ficha</a>`;
-        var tieneAlergias = p.tieneAlergias || (p.alergias && p.alergias !== 'No tiene alergias');
+        var noDeclara = ["", "no", "no tiene alergias", "ninguna", "ninguno", "-", "sin alergias", "sin alergias decl -", "sin alergias declaradas", "false", "0"];
+        var alergiasStr = String(p.alergias || "").toLowerCase().trim();
+        var detAlergia = String(p.alergiasDetalle || p.detalleAlergias || "").trim();
+        var detAlergiaLower = detAlergia.toLowerCase();
+
+        var tieneAlergias = false;
+        if (p.tieneAlergias === true) {
+          if (noDeclara.indexOf(alergiasStr) === -1 || (detAlergiaLower && noDeclara.indexOf(detAlergiaLower) === -1)) {
+            tieneAlergias = true;
+          }
+        } else if (alergiasStr === "si" || alergiasStr === "sí" || alergiasStr === "true") {
+          tieneAlergias = true;
+        } else if (alergiasStr && noDeclara.indexOf(alergiasStr) === -1) {
+          tieneAlergias = true;
+        } else if (detAlergiaLower && noDeclara.indexOf(detAlergiaLower) === -1) {
+          tieneAlergias = true;
+        }
+
         if (tieneAlergias) {
-          badgesHtml += '<span class="person-tag tag-roja" style="background:#dc2626; color:#ffffff; font-weight:700;" title="' + esc(p.alergiasDetalle || p.alergias) + '">⚠️ ALERGIA / MÉDICO</span>';
+          badgesHtml += '<span class="person-tag tag-roja" style="background:#dc2626; color:#ffffff; font-weight:700;" title="' + esc(detAlergia || p.alergias) + '">⚠️ ALERGIA / MÉDICO</span>';
+        } else {
+          badgesHtml += '<span class="person-tag" style="background:#064e3b; color:#34d399; border:1px solid #059669; font-weight:600;" title="Sin alergias declaradas">🟢 Sin alergias</span>';
         }
       } else {
         if (p.tienePresente) {
@@ -1212,8 +1231,7 @@
         var telVal = p.telefono ? (' (' + esc(p.telefono) + ')') : '';
         metaHtml = '<div class="person-meta">' + 'DNI: ' + esc(dniVal) + ' · Edad: ' + esc(edadVal) + ' · Tutor: ' + esc(tutorVal) + telVal + '</div>';
 
-        var detAlergia = p.alergiasDetalle || p.alergias || p.detalleAlergias;
-        if (detAlergia && detAlergia !== 'No tiene alergias' && detAlergia !== 'NO' && detAlergia !== 'Ninguna') {
+        if (tieneAlergias && detAlergia && noDeclara.indexOf(detAlergiaLower) === -1) {
           subMetaHtml = '<div style="font-size:11px; color:#fca5a5; margin-top:2px; font-weight:500;">⚠️ Alergia/Medicación: ' + esc(detAlergia) + '</div>';
         }
       } else {
