@@ -1075,15 +1075,17 @@
           }
           return p;
         });
-        estadisticas = res.estadisticas || { totalEntregadas: 0, totalPendientes: 0 };
+        estadisticas = res.estadisticas || { totalEntregadas: 0, totalPendientes: 0, total: (allPersons.length || 0) };
         updateStats();
         applyFilterAndRender();
         document.getElementById("refreshBtn").classList.add("show");
       } else {
-        showError("Error al cargar: " + (res.error || "desconocido"));
+        showError("Error al cargar asistentes: " + (res.error || "desconocido") + "<br><br><button onclick='loadAll()' class='btn-primary' style='padding:8px 18px; font-size:13px; margin-top:8px; border-radius:8px; cursor:pointer;'>🔄 Reintentar</button>");
       }
     } catch (e) {
-      showError("No se pudo conectar al servidor.<br>Verifica la conexion a internet.");
+      console.error("Error al conectar con el servidor:", e);
+      var detalleError = (e && e.name === 'AbortError') ? "Tiempo de espera agotado (30s)" : (e.message || String(e));
+      showError("No se pudo conectar al servidor de Google Apps Script.<br><span style='font-size:12px; opacity:0.8;'>(" + detalleError + ")</span><br><br><button onclick='loadAll()' class='btn-primary' style='padding:8px 18px; font-size:13px; margin-top:8px; border-radius:8px; cursor:pointer;'>🔄 Reintentar conexión</button>");
     }
   }
 
@@ -1186,6 +1188,7 @@
         if (p.codigo) {
           badgesHtml += '<span class="person-tag" style="background:#1e293b; color:#38bdf8; border:1px solid #0ea5e9;">' + esc(p.codigo || '') + '</span>';
         }
+        badgesHtml += `<a href="https://preadolecentesextiendete.vercel.app/?ficha=${esc(p.codigo || '')}" target="_blank" class="person-tag" style="background:#0f172a; color:#38bdf8; border:1px solid #38bdf8; text-decoration:none; display:inline-flex; align-items:center; gap:4px; font-weight:600;" onclick="event.stopPropagation();" title="Abrir / Imprimir Ficha Oficial A4">📄 Ficha</a>`;
         var tieneAlergias = p.tieneAlergias || (p.alergias && p.alergias !== 'No tiene alergias');
         if (tieneAlergias) {
           badgesHtml += '<span class="person-tag tag-roja" style="background:#dc2626; color:#ffffff; font-weight:700;" title="' + esc(p.alergiasDetalle || p.alergias) + '">⚠️ ALERGIA / MÉDICO</span>';
@@ -1332,12 +1335,29 @@
 
   // ===== UTILS =====
   async function callScript(body) {
-    var r = await fetch(SCRIPT_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain" },
-      body: JSON.stringify(Object.assign({}, body, { evento: EVENTO_CLAVE, token: TOKEN }))
-    });
-    return r.json();
+    try {
+      var controller = new AbortController();
+      var timeoutId = setTimeout(function() { controller.abort(); }, 30000); // 30s timeout
+
+      var r = await fetch(SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify(Object.assign({}, body, { evento: EVENTO_CLAVE, token: TOKEN })),
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      var raw = await r.text();
+      try {
+        return JSON.parse(raw);
+      } catch (jsonErr) {
+        console.error("Error al parsear respuesta JSON de Apps Script:", raw);
+        return { ok: false, error: "Respuesta del servidor no válida: " + raw.substring(0, 100) };
+      }
+    } catch (netErr) {
+      console.error("Error de red en callScript:", netErr);
+      throw netErr;
+    }
   }
 
   function showLoading() {
