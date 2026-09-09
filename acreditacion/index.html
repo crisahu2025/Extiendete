@@ -1197,7 +1197,7 @@
     }
 
     var saludo = nombreTutor ? ("¡Hola " + nombreTutor + "!") : "¡Hola!";
-    var texto = saludo + " Te contactamos desde la Acreditación de Extiéndete Preadolescentes 2026 respecto a la inscripción de " + (nombreMenor || "tu hijo/a") + (codigo ? (" (Código: " + codigo + ")") : "") + ".";
+    var texto = saludo + " Te contactamos desde la Acreditación de Extiéndete Preadolescentes 2026 respecto a la inscripción de " + (nombreMenor || "tu hijo/a") + ".";
 
     return "https://wa.me/" + finalNum + "?text=" + encodeURIComponent(texto);
   }
