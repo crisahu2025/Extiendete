@@ -738,6 +738,18 @@
     "LUMINATE2026": {
       clave: "LUMINATE",
       nombre: "Luminate 2026"
+    },
+    "PRE2026": {
+      clave: "PREADOLESCENTES",
+      nombre: "Extiendete Preadolescentes 2026"
+    },
+    "PREADOLESCENTES2026": {
+      clave: "PREADOLESCENTES",
+      nombre: "Extiendete Preadolescentes 2026"
+    },
+    "EXTPRE2026": {
+      clave: "PREADOLESCENTES",
+      nombre: "Extiendete Preadolescentes 2026"
     }
   };
   const TOKEN = "ACRED_EXTIENDETE_2026";
@@ -1054,8 +1066,16 @@
     try {
       var res = await callScript({ action: "listar", pagina: 1, porPagina: 9999 });
       if (res.ok) {
-        allPersons = res.resultados;
-        estadisticas = res.estadisticas;
+        allPersons = (res.resultados || []).map(function(p) {
+          if (!p.id) {
+            p.id = (p.hoja || (EVENTO_CLAVE === 'PREADOLESCENTES' ? 'Preadolescentes' : 'General')) + '::' + p.fila;
+          }
+          if (!p.hoja && EVENTO_CLAVE === 'PREADOLESCENTES') {
+            p.hoja = 'Preadolescentes';
+          }
+          return p;
+        });
+        estadisticas = res.estadisticas || { totalEntregadas: 0, totalPendientes: 0 };
         updateStats();
         applyFilterAndRender();
         document.getElementById("refreshBtn").classList.add("show");
@@ -1080,8 +1100,24 @@
     showLoading();
     try {
       var res = await callScript({ action: "buscar", query: q });
-      if (res.ok) renderPersons(res.resultados, true);
-      else showError(res.error || "Error en busqueda");
+      if (res.ok) {
+        var items = (res.resultados || []).map(function(p) {
+          if (!p.id) {
+            p.id = (p.hoja || (EVENTO_CLAVE === 'PREADOLESCENTES' ? 'Preadolescentes' : 'General')) + '::' + p.fila;
+          }
+          if (!p.hoja && EVENTO_CLAVE === 'PREADOLESCENTES') {
+            p.hoja = 'Preadolescentes';
+          }
+          return p;
+        });
+        // Sincronizar en allPersons para que entregarSeleccionados y toggleSelect los encuentren
+        items.forEach(function(r) {
+          var idx = allPersons.findIndex(function(x) { return x.id === r.id; });
+          if (idx >= 0) allPersons[idx] = r;
+          else allPersons.push(r);
+        });
+        renderPersons(items, true);
+      } else showError(res.error || "Error en busqueda");
     } catch(e) { showError("Error de conexion."); }
   }
 
@@ -1130,7 +1166,8 @@
     var html = '<p class="list-count">' + countText + "</p>";
 
     shown.forEach(function(p) {
-      var isSel = selectedIds.has(p.id);
+      var pId = String(p.id || (p.hoja + "::" + p.fila));
+      var isSel = selectedIds.has(pId);
       var cls = "person-card " + (p.entregada ? "entregada" : isSel ? "selected" : "pendiente");
       var check = (p.entregada || isSel) ? "✓" : "";
       var tag = p.entregada
@@ -1139,35 +1176,65 @@
       var delivery = p.entregada
         ? '<div class="delivery-info">✓ ' + esc(p.entregadaPor || "?") + " · " + esc(p.fechaEntrega || "") + "</div>"
         : "";
-      var click = p.entregada ? "" : 'onclick="toggleSelect(\'' + p.id.replace(/'/g, "\\'") + '\')"';
-      var safeId = p.id.replace(/[^a-zA-Z0-9_-]/g, "_");
+      var click = p.entregada ? "" : 'onclick="toggleSelect(\'' + pId.replace(/\\/g, "\\\\").replace(/'/g, "\\'") + '\')"';
+      var safeId = pId.replace(/[^a-zA-Z0-9_-]/g, "_");
 
+      var isPre = (p.hoja === 'Preadolescentes' || p.tipo === 'PREADOLESCENTE' || EVENTO_CLAVE === 'PREADOLESCENTES');
       var badgesHtml = "";
-      if (p.tienePresente) {
-        badgesHtml += '<span class="person-tag tag-presente" title="Corresponde Librito + Lapicera">📖 LIBRO</span>';
-      }
-      if (p.esPulseraRoja) {
-        badgesHtml += '<span class="person-tag tag-roja" title="Corresponde Pulsera Roja">🔴 P. ROJA</span>';
+
+      if (isPre) {
+        if (p.codigo) {
+          badgesHtml += '<span class="person-tag" style="background:#1e293b; color:#38bdf8; border:1px solid #0ea5e9;">' + esc(p.codigo || '') + '</span>';
+        }
+        var tieneAlergias = p.tieneAlergias || (p.alergias && p.alergias !== 'No tiene alergias');
+        if (tieneAlergias) {
+          badgesHtml += '<span class="person-tag tag-roja" style="background:#dc2626; color:#ffffff; font-weight:700;" title="' + esc(p.alergiasDetalle || p.alergias) + '">⚠️ ALERGIA / MÉDICO</span>';
+        }
+      } else {
+        if (p.tienePresente) {
+          badgesHtml += '<span class="person-tag tag-presente" title="Corresponde Librito + Lapicera">📖 LIBRO</span>';
+        }
+        if (p.esPulseraRoja) {
+          badgesHtml += '<span class="person-tag tag-roja" title="Corresponde Pulsera Roja">🔴 P. ROJA</span>';
+        }
       }
 
-          var metaDetails = [];
-          if (p.ciudad) metaDetails.push(esc(p.ciudad));
-          if (p.pastor) metaDetails.push("Pastor: " + esc(p.pastor));
-          if (p.lider) metaDetails.push("Líder: " + esc(p.lider));
-          if (p.tipo) metaDetails.push(esc(p.tipo));
-          var metaStr = metaDetails.length > 0 ? metaDetails.join(" · ") : "General";
+      var metaHtml = "";
+      var subMetaHtml = "";
 
-          html += '<div class="' + cls + '" id="c_' + safeId + '" ' + click + '>' +
-            '<div class="checkbox">' + check + '</div>' +
-            '<div class="person-info">' +
-              '<div class="person-name" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">' +
-                '<span>' + esc(p.nombre) + '</span>' + badgesHtml +
-              '</div>' +
-              '<div class="person-meta">' + metaStr + '</div>' +
-              delivery +
+      if (isPre) {
+        var dniVal = (p.dni !== undefined && p.dni !== null && p.dni !== "") ? p.dni : (p.dniMenor || '-');
+        var edadVal = p.edad ? (p.edad + ' años') : '-';
+        var tutorVal = (p.tutor !== undefined && p.tutor !== null && p.tutor !== "") ? p.tutor : (p.adultoResponsable || '-');
+        var telVal = p.telefono ? (' (' + esc(p.telefono) + ')') : '';
+        metaHtml = '<div class="person-meta">' + 'DNI: ' + esc(dniVal) + ' · Edad: ' + esc(edadVal) + ' · Tutor: ' + esc(tutorVal) + telVal + '</div>';
+
+        var detAlergia = p.alergiasDetalle || p.alergias || p.detalleAlergias;
+        if (detAlergia && detAlergia !== 'No tiene alergias' && detAlergia !== 'NO' && detAlergia !== 'Ninguna') {
+          subMetaHtml = '<div style="font-size:11px; color:#fca5a5; margin-top:2px; font-weight:500;">⚠️ Alergia/Medicación: ' + esc(detAlergia) + '</div>';
+        }
+      } else {
+        var metaDetails = [];
+        if (p.ciudad) metaDetails.push(esc(p.ciudad));
+        if (p.pastor) metaDetails.push("Pastor: " + esc(p.pastor));
+        if (p.lider) metaDetails.push("Líder: " + esc(p.lider));
+        if (p.tipo) metaDetails.push(esc(p.tipo));
+        var metaStr = metaDetails.length > 0 ? metaDetails.join(" · ") : "General";
+        metaHtml = '<div class="person-meta">' + metaStr + '</div>';
+      }
+
+      html += '<div class="' + cls + '" id="c_' + safeId + '" ' + click + '>' +
+        '<div class="checkbox">' + check + '</div>' +
+        '<div class="person-info">' +
+          '<div class="person-name" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">' +
+            '<span>' + esc(p.nombre || p.nombreMenor || '') + '</span>' + badgesHtml +
+          '</div>' +
+          metaHtml +
+          subMetaHtml +
+          delivery +
         '</div>' +
         tag +
-        '</div>';
+      '</div>';
     });
 
     container.innerHTML = html;
@@ -1181,14 +1248,15 @@
 
   // ===== SELECTION =====
   function toggleSelect(id) {
-    if (selectedIds.has(id)) selectedIds.delete(id);
-    else selectedIds.add(id);
+    var pId = String(id);
+    if (selectedIds.has(pId)) selectedIds.delete(pId);
+    else selectedIds.add(pId);
     updateFab();
 
-    var safeId = id.replace(/[^a-zA-Z0-9_-]/g, "_");
+    var safeId = pId.replace(/[^a-zA-Z0-9_-]/g, "_");
     var card = document.getElementById("c_" + safeId);
     if (!card) return;
-    var isSel = selectedIds.has(id);
+    var isSel = selectedIds.has(pId);
     card.className = "person-card " + (isSel ? "selected" : "pendiente");
     card.querySelector(".checkbox").textContent = isSel ? "✓" : "";
   }
@@ -1216,8 +1284,11 @@
 
     var personas = [];
     selectedIds.forEach(function(id) {
-      var p = allPersons.find(function(x){ return x.id === id; });
-      if (p) personas.push({ hoja: p.hoja, fila: p.fila });
+      var p = allPersons.find(function(x){ return String(x.id) === String(id); });
+      if (p) {
+        var hojaName = p.hoja || (EVENTO_CLAVE === "PREADOLESCENTES" ? "Preadolescentes" : "Pago-Online");
+        personas.push({ hoja: hojaName, fila: p.fila });
+      }
     });
 
     try {
@@ -1227,7 +1298,7 @@
         var tieneLibro = false;
         var tieneRoja = false;
         personas.forEach(function(per) {
-          var matched = allPersons.find(function(x){ return x.hoja === per.hoja && x.fila === per.fila; });
+          var matched = allPersons.find(function(x){ return (x.hoja || (EVENTO_CLAVE === "PREADOLESCENTES" ? "Preadolescentes" : "Pago-Online")) === per.hoja && x.fila === per.fila; });
           if (matched && matched.tienePresente) tieneLibro = true;
           if (matched && matched.esPulseraRoja) tieneRoja = true;
         });
