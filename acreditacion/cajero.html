@@ -388,6 +388,96 @@
       flex-shrink: 0;
     }
 
+    /* SELECTOR DE EVENTO ACTIVO (TERMINAL AUTENTICADA) */
+    .cajero-evento-wrapper {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .cajero-evento-select {
+      height: 38px;
+      padding: 0 32px 0 12px;
+      background: #141724 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23fac415' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat calc(100% - 10px) center;
+      border: 1.5px solid rgba(250, 196, 21, 0.4);
+      border-radius: 10px;
+      color: #f8fafc;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      outline: none;
+      cursor: pointer;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+      max-width: 230px;
+    }
+
+    .cajero-evento-select:hover {
+      background-color: #1a1e30;
+      border-color: var(--primary);
+      box-shadow: 0 0 14px var(--primary-glow);
+    }
+
+    .cajero-evento-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+      background-color: #1d2237;
+    }
+
+    .cajero-evento-select option {
+      background: #12141e;
+      color: #ffffff;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    /* Acentos dinámicos de evento */
+    .cajero-evento-select.sel-luminate {
+      border-color: rgba(192, 132, 252, 0.6);
+      background-color: rgba(168, 85, 247, 0.12);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23c084fc' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      color: #f3e8ff;
+      box-shadow: 0 0 12px rgba(192, 132, 252, 0.25);
+    }
+    .cajero-evento-select.sel-luminate:hover,
+    .cajero-evento-select.sel-luminate:focus {
+      border-color: #c084fc;
+      box-shadow: 0 0 18px rgba(192, 132, 252, 0.45);
+      background-color: rgba(168, 85, 247, 0.2);
+    }
+
+    .cajero-evento-select.sel-exthombres {
+      border-color: rgba(250, 196, 21, 0.6);
+      background-color: rgba(250, 196, 21, 0.08);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23fac415' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      color: #fef08a;
+      box-shadow: 0 0 12px rgba(250, 196, 21, 0.25);
+    }
+    .cajero-evento-select.sel-exthombres:hover,
+    .cajero-evento-select.sel-exthombres:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 18px rgba(250, 196, 21, 0.45);
+      background-color: rgba(250, 196, 21, 0.16);
+    }
+
+    .cajero-evento-select.sel-preadolescentes {
+      border-color: rgba(34, 211, 238, 0.6);
+      background-color: rgba(6, 182, 212, 0.08);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2322d3ee' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      color: #cffafe;
+      box-shadow: 0 0 12px rgba(34, 211, 238, 0.25);
+    }
+    .cajero-evento-select.sel-preadolescentes:hover,
+    .cajero-evento-select.sel-preadolescentes:focus {
+      border-color: #22d3ee;
+      box-shadow: 0 0 18px rgba(34, 211, 238, 0.45);
+      background-color: rgba(6, 182, 212, 0.16);
+    }
+
     /* STAT RECAUDADO CHIP */
     .stat-turn-chip {
       background: var(--card-inner);
@@ -1071,10 +1161,35 @@
     }
 
     /* RESPONSIVE */
-    @media (max-width: 600px) {
+    @media (max-width: 720px) {
       .header-inner {
+        flex-wrap: wrap;
         padding: 8px 12px;
+        gap: 8px;
       }
+      .header-brand {
+        width: 100%;
+        justify-content: flex-start;
+      }
+      .header-actions {
+        width: 100%;
+        justify-content: space-between;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .cajero-evento-wrapper {
+        flex: 1 1 100%;
+        margin-bottom: 2px;
+      }
+      .cajero-evento-select {
+        width: 100%;
+        max-width: 100%;
+        height: 38px;
+        font-size: 12.5px;
+      }
+    }
+
+    @media (max-width: 600px) {
       .brand-title {
         font-size: 11.5px;
       }
@@ -1112,15 +1227,6 @@
       <p class="sub">Cobro en Efectivo & Pulseras en Puerta</p>
 
       <form id="cajeroLoginForm" onsubmit="handleCajeroLogin(event)">
-        <div class="field-group">
-          <label class="field-label" for="loginEventoSelect">Evento / Planilla Activa *</label>
-          <select class="field-input" id="loginEventoSelect" required>
-            <option value="LUMINATE">✨ Luminate 2026</option>
-            <option value="EXTHOMBRES" selected>🔥 Extiéndete Hombres 2026</option>
-            <option value="PREADOLESCENTES">⚡ Extiéndete Preadolescentes 2026</option>
-          </select>
-        </div>
-
         <div class="field-group">
           <label class="field-label" for="loginColab">Nombre del Colaborador / Cajero *</label>
           <input class="field-input" id="loginColab" type="text" placeholder="Ej: Juan — Mesa 1" autocomplete="name" required autofocus />
@@ -1161,6 +1267,15 @@
         </div>
 
         <div class="header-actions">
+          <!-- Selector de Evento / Planilla Activa -->
+          <div class="cajero-evento-wrapper">
+            <select id="cajeroEventoSelect" class="cajero-evento-select" onchange="cambiarEventoActivo(this.value)" title="Cambiar planilla o evento de cobro">
+              <option value="LUMINATE">✨ Luminate 2026</option>
+              <option value="EXTHOMBRES" selected>🔥 Extiéndete Hombres 2026</option>
+              <option value="PREADOLESCENTES">⚡ Extiéndete Preadolescentes 2026</option>
+            </select>
+          </div>
+
           <!-- Total Recaudado en vivo -->
           <div class="stat-turn-chip" title="Total recaudado en este turno/sesión">
             <span class="stat-val" id="turnTotalDisplay">$0</span>
@@ -1418,13 +1533,46 @@
       document.title = `Terminal Cajero — ${info.nombre}`;
     }
 
+    function actualizarEstilosSelectorEvento(clave) {
+      const sel = document.getElementById("cajeroEventoSelect");
+      if (!sel) return;
+      sel.classList.remove("sel-luminate", "sel-exthombres", "sel-preadolescentes");
+      const norm = normalizarEventoClave(clave);
+      if (norm === "LUMINATE") {
+        sel.classList.add("sel-luminate");
+      } else if (norm === "PREADOLESCENTES") {
+        sel.classList.add("sel-preadolescentes");
+      } else {
+        sel.classList.add("sel-exthombres");
+      }
+    }
+
+    function cambiarEventoActivo(nuevaClave) {
+      const norm = normalizarEventoClave(nuevaClave);
+      sessionEventoClave = norm;
+      sessionEventoNombre = (EVENTOS_MAP[norm] && EVENTOS_MAP[norm].nombre) || "Extiéndete";
+
+      sessionStorage.setItem("cajero_evento_clave", sessionEventoClave);
+      sessionStorage.setItem("cajero_evento_nombre", sessionEventoNombre);
+
+      const sel = document.getElementById("cajeroEventoSelect");
+      if (sel && sel.value !== sessionEventoClave) {
+        sel.value = sessionEventoClave;
+      }
+
+      aplicarBadgeEvento(sessionEventoClave);
+      actualizarEstilosSelectorEvento(sessionEventoClave);
+
+      mostrarToast(`Planilla activa: ${sessionEventoNombre}`, "info");
+    }
+
     function verificarSesionInicial() {
       const urlParams = new URLSearchParams(window.location.search);
       const urlEvento = urlParams.get("evento");
       const urlNombre = urlParams.get("nombre");
       const urlColab = urlParams.get("colab");
 
-      // Prioridad evento: 1. URL param, 2. cajero_evento_clave, 3. acred_evento_clave, 4. fallback EXTHOMBRES
+      // Prioridad evento: 1. URL param (silencioso), 2. cajero_evento_clave, 3. acred_evento_clave, 4. fallback EXTHOMBRES
       let eventoDetectado = "";
       if (urlEvento) {
         eventoDetectado = normalizarEventoClave(urlEvento);
@@ -1439,18 +1587,19 @@
       sessionEventoClave = eventoDetectado;
       sessionEventoNombre = urlNombre || (EVENTOS_MAP[eventoDetectado] && EVENTOS_MAP[eventoDetectado].nombre) || "Extiéndete";
 
-      // Pre-seleccionar en el selector de login
-      const sel = document.getElementById("loginEventoSelect");
-      if (sel) {
-        sel.value = sessionEventoClave;
-      }
-
       // Pre-cargar nombre si vino por URL
       if (urlColab) {
         const inputColab = document.getElementById("loginColab");
         if (inputColab && !inputColab.value) {
           inputColab.value = urlColab;
         }
+      }
+
+      // Verificar expiración estricta de sesión por inactividad (30 min)
+      const lastActivity = parseInt(sessionStorage.getItem("cajero_last_activity") || "0", 10);
+      if (lastActivity && (Date.now() - lastActivity > INACTIVITY_LIMIT_MS)) {
+        cerrarSesionCajero("inactividad");
+        return;
       }
 
       const savedColab = sessionStorage.getItem("cajero_colab") || urlColab;
@@ -1464,6 +1613,7 @@
         sessionAuth = savedAuth;
         sessionStorage.setItem("cajero_evento_clave", sessionEventoClave);
         sessionStorage.setItem("cajero_evento_nombre", sessionEventoNombre);
+        sessionStorage.setItem("cajero_last_activity", Date.now().toString());
 
         totalRecaudadoSesion = isNaN(savedMonto) ? 0 : savedMonto;
         totalEntradasSesion = isNaN(savedEntradas) ? 0 : savedEntradas;
@@ -1482,11 +1632,6 @@
       document.getElementById("loginPass").value = "";
       document.getElementById("loginErrorMsg").textContent = "";
 
-      const sel = document.getElementById("loginEventoSelect");
-      if (sel && sessionEventoClave) {
-        sel.value = sessionEventoClave;
-      }
-
       setTimeout(() => {
         const inputColab = document.getElementById("loginColab");
         if (inputColab && !inputColab.value) {
@@ -1503,7 +1648,14 @@
       document.getElementById("cajeroApp").classList.remove("hidden");
       document.getElementById("cajeroColabDisplay").textContent = `👤 Cajero: ${sessionColab}`;
 
+      // Sincronizar selector interno de eventos y su estilo acentuado
+      const sel = document.getElementById("cajeroEventoSelect");
+      if (sel) {
+        sel.value = sessionEventoClave;
+      }
+
       aplicarBadgeEvento(sessionEventoClave);
+      actualizarEstilosSelectorEvento(sessionEventoClave);
       actualizarContadorTurno();
       iniciarTrackerInactividad();
       actualizarTotales();
@@ -1518,7 +1670,6 @@
       event.preventDefault();
       const colabInput = document.getElementById("loginColab").value.trim();
       const passInput = document.getElementById("loginPass").value.trim().toUpperCase();
-      const eventoSelected = document.getElementById("loginEventoSelect").value;
       const errorEl = document.getElementById("loginErrorMsg");
 
       errorEl.textContent = "";
@@ -1539,13 +1690,15 @@
       // Guardar en sessionStorage
       sessionColab = colabInput;
       sessionAuth = passInput;
-      sessionEventoClave = normalizarEventoClave(eventoSelected);
+      // Mantener sessionEventoClave resuelta silenciosamente (URL o default)
+      sessionEventoClave = normalizarEventoClave(sessionEventoClave || sessionStorage.getItem("cajero_evento_clave") || "EXTHOMBRES");
       sessionEventoNombre = (EVENTOS_MAP[sessionEventoClave] && EVENTOS_MAP[sessionEventoClave].nombre) || "Extiéndete";
 
       sessionStorage.setItem("cajero_colab", sessionColab);
       sessionStorage.setItem("cajero_auth", sessionAuth);
       sessionStorage.setItem("cajero_evento_clave", sessionEventoClave);
       sessionStorage.setItem("cajero_evento_nombre", sessionEventoNombre);
+      sessionStorage.setItem("cajero_last_activity", Date.now().toString());
 
       if (!sessionStorage.getItem("cajero_total_monto")) {
         sessionStorage.setItem("cajero_total_monto", "0");
@@ -1576,12 +1729,8 @@
 
     function cerrarSesionCajero(razon) {
       if (inactivityTimer) clearTimeout(inactivityTimer);
-      sessionStorage.removeItem("cajero_colab");
-      sessionStorage.removeItem("cajero_auth");
-      sessionStorage.removeItem("cajero_total_monto");
-      sessionStorage.removeItem("cajero_total_entradas");
-      sessionStorage.removeItem("cajero_evento_clave");
-      sessionStorage.removeItem("cajero_evento_nombre");
+      // Destrucción total de sesión
+      sessionStorage.clear();
 
       sessionColab = "";
       sessionAuth = "";
@@ -1597,8 +1746,19 @@
       }
     }
 
+    function verificarInactividadCajero() {
+      const lastActivity = parseInt(sessionStorage.getItem("cajero_last_activity") || "0", 10);
+      if (lastActivity && (Date.now() - lastActivity > INACTIVITY_LIMIT_MS)) {
+        cerrarSesionCajero("inactividad");
+        return true;
+      }
+      return false;
+    }
+
     function iniciarTrackerInactividad() {
       const reset = () => {
+        if (verificarInactividadCajero()) return;
+        sessionStorage.setItem("cajero_last_activity", Date.now().toString());
         if (inactivityTimer) clearTimeout(inactivityTimer);
         inactivityTimer = setTimeout(() => {
           cerrarSesionCajero("inactividad");
@@ -1610,14 +1770,25 @@
         window.addEventListener(evt, reset, { passive: true });
       });
 
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) {
+          if (!verificarInactividadCajero()) reset();
+        }
+      });
+
+      window.addEventListener('pageshow', () => {
+        if (verificarInactividadCajero()) return;
+      });
+
       reset();
     }
 
     function goToAcreditacion() {
+      const targetUrl = "index.html" + (sessionEventoClave ? `?evento=${encodeURIComponent(sessionEventoClave)}` : "");
       if (window.opener && !window.opener.closed) {
         window.opener.focus();
       } else {
-        window.location.href = "index.html";
+        window.location.href = targetUrl;
       }
     }
 
@@ -2012,9 +2183,12 @@
     }
 
     function escapeHtml(text) {
-      const div = document.createElement("div");
-      div.textContent = text;
-      return div.innerHTML;
+      return String(text || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
     }
   </script>
 </body>

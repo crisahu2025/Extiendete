@@ -822,10 +822,22 @@
   let acredInactivityTimer = null;
   const ACRED_INACTIVITY_LIMIT_MS = 30 * 60 * 1000; // 30 minutos
 
+  function verificarExpiracionInactividad() {
+    if (!sessionStorage.getItem("acred_colab")) return false;
+    const lastAct = parseInt(sessionStorage.getItem("acred_last_activity") || "0", 10);
+    if (lastAct && (Date.now() - lastAct > ACRED_INACTIVITY_LIMIT_MS)) {
+      cerrarSesionAcred('inactivity');
+      return true;
+    }
+    return false;
+  }
+
   function initAcredInactivityTracker() {
     if (!sessionStorage.getItem("acred_colab")) return;
 
     const resetTimer = () => {
+      if (verificarExpiracionInactividad()) return;
+      sessionStorage.setItem("acred_last_activity", Date.now().toString());
       if (acredInactivityTimer) clearTimeout(acredInactivityTimer);
       acredInactivityTimer = setTimeout(onAcredInactivityTimeout, ACRED_INACTIVITY_LIMIT_MS);
     };
@@ -833,6 +845,12 @@
     const activityEvents = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'pointerdown', 'click'];
     activityEvents.forEach(evt => {
       window.addEventListener(evt, resetTimer, { passive: true });
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) {
+        if (!verificarExpiracionInactividad()) resetTimer();
+      }
     });
 
     resetTimer();
@@ -847,11 +865,8 @@
       clearTimeout(acredInactivityTimer);
       acredInactivityTimer = null;
     }
-    // Limpieza estricta de almacenamiento
-    sessionStorage.removeItem("acred_colab");
-    sessionStorage.removeItem("acred_evento_clave");
-    sessionStorage.removeItem("acred_evento_nombre");
-    sessionStorage.removeItem("acred_logged");
+    // Destrucción total de sesión en almacenamiento del navegador
+    sessionStorage.clear();
     localStorage.removeItem("acred_colab");
 
     // Destrucción total de estado en memoria
@@ -891,7 +906,7 @@
 
   // Protección contra navegación histórica (BFCache / Botón Atrás)
   window.addEventListener('pageshow', function() {
-    if (!sessionStorage.getItem("acred_colab")) {
+    if (!sessionStorage.getItem("acred_colab") || verificarExpiracionInactividad()) {
       document.getElementById("app").classList.add("hidden");
       document.getElementById("loginScreen").classList.remove("hidden");
     }
@@ -899,6 +914,7 @@
 
   document.addEventListener("DOMContentLoaded", function() {
     localStorage.removeItem("acred_colab");
+    if (verificarExpiracionInactividad()) return;
     if (sessionStorage.getItem("acred_colab") && sessionStorage.getItem("acred_logged") === "true") {
       COLAB_NAME = sessionStorage.getItem("acred_colab");
       EVENTO_CLAVE = sessionStorage.getItem("acred_evento_clave") || "EXTHOMBRES";
@@ -943,6 +959,7 @@
     sessionStorage.setItem("acred_evento_clave", evento.clave);
     sessionStorage.setItem("acred_evento_nombre", evento.nombre);
     sessionStorage.setItem("acred_logged", "true");
+    sessionStorage.setItem("acred_last_activity", Date.now().toString());
     localStorage.removeItem("acred_colab");
     errEl.textContent = "";
     document.getElementById("loginScreen").classList.add("hidden");
@@ -961,7 +978,7 @@
     window.open(url, "_blank");
   }
 
-  // ===== COBRO EN PUERTA / ANOTAR EN EFECTIVO (Requiere contraseña IARAHACKER26) =====
+  // ===== COBRO EN PUERTA / ANOTAR EN EFECTIVO (Requiere contraseña de autorización) =====
   function openCobroPuertaModal() {
     document.getElementById("cpNombre").value = "";
     document.getElementById("cpPastor").value = "";
@@ -1011,10 +1028,9 @@
       return;
     }
 
-    // EXIGIR OBLIGATORIAMENTE LA CONTRASEÑA "IARAHACKER26"
-    if (authPass !== "IARAHACKER26") {
-      errEl.textContent = "❌ Contraseña de autorización incorrecta.";
-      document.getElementById("cpAuthPass").value = "";
+    // Exigir ingreso de contraseña de autorización (la validación estricta se realiza en Apps Script server-side)
+    if (!authPass) {
+      errEl.textContent = "⚠️ Ingresa la contraseña de autorización.";
       document.getElementById("cpAuthPass").focus();
       return;
     }
@@ -1138,12 +1154,12 @@
         applyFilterAndRender();
         document.getElementById("refreshBtn").classList.add("show");
       } else {
-        showError("Error al cargar asistentes: " + (res.error || "desconocido") + "<br><br><button onclick='loadAll()' class='btn-primary' style='padding:8px 18px; font-size:13px; margin-top:8px; border-radius:8px; cursor:pointer;'>🔄 Reintentar</button>");
+        showError("Error al cargar asistentes: " + esc(res.error || "desconocido") + "<br><br><button onclick='loadAll()' class='btn-primary' style='padding:8px 18px; font-size:13px; margin-top:8px; border-radius:8px; cursor:pointer;'>🔄 Reintentar</button>");
       }
     } catch (e) {
       console.error("Error al conectar con el servidor:", e);
       var detalleError = (e && e.name === 'AbortError') ? "Tiempo de espera agotado (30s)" : (e.message || String(e));
-      showError("No se pudo conectar al servidor de Google Apps Script.<br><span style='font-size:12px; opacity:0.8;'>(" + detalleError + ")</span><br><br><button onclick='loadAll()' class='btn-primary' style='padding:8px 18px; font-size:13px; margin-top:8px; border-radius:8px; cursor:pointer;'>🔄 Reintentar conexión</button>");
+      showError("No se pudo conectar al servidor de Google Apps Script.<br><span style='font-size:12px; opacity:0.8;'>(" + esc(detalleError) + ")</span><br><br><button onclick='loadAll()' class='btn-primary' style='padding:8px 18px; font-size:13px; margin-top:8px; border-radius:8px; cursor:pointer;'>🔄 Reintentar conexión</button>");
     }
   }
 
@@ -1177,7 +1193,7 @@
           else allPersons.push(r);
         });
         renderPersons(items, true);
-      } else showError(res.error || "Error en busqueda");
+      } else showError(esc(res.error || "Error en busqueda"));
     } catch(e) { showError("Error de conexion."); }
   }
 
@@ -1259,7 +1275,7 @@
       var delivery = p.entregada
         ? '<div class="delivery-info">✓ ' + esc(p.entregadaPor || "?") + " · " + esc(p.fechaEntrega || "") + "</div>"
         : "";
-      var click = p.entregada ? "" : 'onclick="toggleSelect(\'' + pId.replace(/\\/g, "\\\\").replace(/'/g, "\\'") + '\')"';
+      var click = p.entregada ? "" : 'onclick="toggleSelect(\'' + pId.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, "&quot;") + '\')"';
       var safeId = pId.replace(/[^a-zA-Z0-9_-]/g, "_");
 
       var isPre = (p.hoja === 'Preadolescentes' || p.tipo === 'PREADOLESCENTE' || EVENTO_CLAVE === 'PREADOLESCENTES');
@@ -1504,8 +1520,11 @@
 
   function esc(s) {
     return String(s || "")
-      .replace(/&/g,"&amp;").replace(/</g,"&lt;")
-      .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
   }
 </script>
 </body>
