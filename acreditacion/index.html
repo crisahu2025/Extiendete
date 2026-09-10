@@ -623,7 +623,8 @@
       <span class="n" id="statPendientes">-</span>
       <span class="l">pendientes</span>
     </div>
-    <button class="btn-cash-register" onclick="openCobroPuertaModal()" title="Cobro en Puerta / Anotar Persona en Efectivo">💵 Cobro Efectivo</button>
+    <button class="btn-cash-register" onclick="window.open('cajero.html', '_blank')" title="Abrir Terminal de Cajero en Nueva Ventana">💵 Abrir Cajero (Ventana Nueva)</button>
+    <button class="icon-btn" onclick="openCobroPuertaModal()" title="Cobro Rápido en Modal (Respaldo)" style="font-size: 15px;">📝</button>
     <button class="icon-btn" onclick="openSettings()" aria-label="Configuracion" title="Configuración">⚙️</button>
     <button class="icon-btn" onclick="cerrarSesionAcred('manual')" aria-label="Cerrar Sesion" title="Cerrar Sesión" style="color: #ef4444;">🚪</button>
   </header>
@@ -777,7 +778,7 @@
 <script>
   // ===== CONFIG — MULTI-EVENTO UNIFICADO =====
   // Un solo script maneja ambas planillas
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyQzIiee_ACPtMHV0PtzIrVq7PXjpbAGmIgvDO3OdiQXYt8zaBjekwhIiXDWZKcsRt2/exec";
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyAE3jF4ozWV7qaTXrijI6ocb9g_n9mvCvq_OXnDkBV6bVri_-mPTBZHV7kP-nfjNSr/exec";
   const EVENTOS = {
     "EXTHOMBRES2026": {
       clave: "EXTHOMBRES",

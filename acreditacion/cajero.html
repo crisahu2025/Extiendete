@@ -1,0 +1,1851 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#090a0f" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Terminal Cajero Efectivo — EXTIÉNDETE 2026</title>
+  <link rel="icon" type="image/png" href="../favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090a0f;
+      --card: #12141e;
+      --card-inner: #191c2b;
+      --card-highlight: #1e2235;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-focus: #fac415;
+      --primary: #fac415;        /* Ámbar */
+      --primary-hover: #eab308;
+      --primary-glow: rgba(250, 196, 21, 0.25);
+      --green: #22c55e;          /* Verde Cobro */
+      --green-hover: #16a34a;
+      --green-glow: rgba(34, 197, 94, 0.35);
+      --green-bg: rgba(34, 197, 94, 0.12);
+      --green-border: rgba(34, 197, 94, 0.4);
+      --red: #ef4444;
+      --red-bg: rgba(239, 68, 68, 0.12);
+      --red-border: rgba(239, 68, 68, 0.45);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --r: 16px;
+      --r-sm: 10px;
+      --touch: 50px;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      height: 100%;
+      -webkit-text-size-adjust: 100%;
+      background-color: var(--bg);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100%;
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      line-height: 1.45;
+    }
+
+    /* ===== PANTALLA 1: LOGIN ===== */
+    #loginScreen {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 50% 20%, #171a2a 0%, #090a0f 80%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    #loginScreen.hidden {
+      display: none;
+    }
+
+    .login-card {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 24px;
+      padding: 38px 28px;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 35px var(--primary-glow);
+      position: relative;
+    }
+
+    .login-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(250, 196, 21, 0.12);
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 5px 12px;
+      border-radius: 50px;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+
+    .login-logo {
+      width: 82px;
+      height: 82px;
+      background: linear-gradient(135deg, rgba(250, 196, 21, 0.15), rgba(34, 197, 94, 0.15));
+      border: 2px solid var(--primary);
+      border-radius: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      margin: 0 auto 16px;
+      box-shadow: 0 0 28px var(--primary-glow);
+    }
+
+    .login-card h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: 1.5px;
+      margin-bottom: 4px;
+    }
+
+    .login-card .sub {
+      font-size: 13.5px;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    .field-group {
+      margin-bottom: 16px;
+      text-align: left;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      margin-bottom: 7px;
+    }
+
+    .field-input {
+      width: 100%;
+      height: var(--touch);
+      padding: 0 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-size: 15px;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      background: var(--card-inner);
+      color: var(--text);
+      transition: all 0.2s ease;
+      -webkit-appearance: none;
+    }
+
+    .field-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+      background: #1e2133;
+    }
+
+    .pass-wrap {
+      position: relative;
+    }
+
+    .pass-wrap .field-input {
+      padding-right: 48px;
+    }
+
+    .toggle-pass-btn {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 48px;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.15s;
+    }
+
+    .toggle-pass-btn:hover {
+      color: var(--primary);
+    }
+
+    .login-error {
+      color: var(--red);
+      font-size: 13px;
+      font-weight: 600;
+      min-height: 20px;
+      margin-bottom: 14px;
+      text-align: center;
+    }
+
+    .btn-login {
+      width: 100%;
+      height: var(--touch);
+      background: linear-gradient(135deg, var(--primary), #eab308);
+      color: #000000;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 14.5px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 0 20px var(--primary-glow);
+    }
+
+    .btn-login:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 28px rgba(250, 196, 21, 0.4);
+    }
+
+    .btn-login:active {
+      transform: scale(0.99);
+    }
+
+    /* ===== PANTALLA 2: TERMINAL APP ===== */
+    #cajeroApp {
+      display: flex;
+      flex-direction: column;
+      min-height: 100dvh;
+      background: var(--bg);
+    }
+
+    #cajeroApp.hidden {
+      display: none;
+    }
+
+    /* HEADER */
+    .cajero-header {
+      background: rgba(18, 20, 30, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1.5px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .header-inner {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      background: rgba(250, 196, 21, 0.12);
+      border: 1.5px solid var(--primary);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+      box-shadow: 0 0 12px var(--primary-glow);
+    }
+
+    .brand-text {
+      min-width: 0;
+    }
+
+    .brand-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 13.5px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .brand-title .live-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--green);
+      animation: pulseDot 1.8s infinite ease-in-out;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.35); opacity: 0.6; }
+    }
+
+    .brand-user {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    /* STAT RECAUDADO CHIP */
+    .stat-turn-chip {
+      background: var(--card-inner);
+      border: 1.5px solid var(--green-border);
+      border-radius: 10px;
+      padding: 6px 12px;
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 15px rgba(34, 197, 94, 0.15);
+    }
+
+    .stat-turn-chip .stat-val {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--green);
+      line-height: 1.1;
+      white-space: nowrap;
+    }
+
+    .stat-turn-chip .stat-sub {
+      font-size: 10px;
+      color: var(--muted);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .nav-btn {
+      height: 38px;
+      padding: 0 12px;
+      background: var(--card-inner);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .nav-btn:hover {
+      background: var(--card-highlight);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .nav-btn-danger {
+      color: var(--red);
+      border-color: var(--red-border);
+      background: var(--red-bg);
+      padding: 0 10px;
+    }
+
+    .nav-btn-danger:hover {
+      background: var(--red);
+      color: #ffffff;
+    }
+
+    /* CONTENEDOR PRINCIPAL */
+    .cajero-main {
+      flex: 1;
+      max-width: 860px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 20px 16px 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* CARD CONTENEDORA */
+    .section-card {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r);
+      padding: 22px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+      position: relative;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-count {
+      background: var(--card-inner);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'Inter', sans-serif;
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 20px;
+    }
+
+    /* LISTA DINÁMICA DE ASISTENTES */
+    .asistentes-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .asistente-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: fadeInRow 0.25s ease-out;
+    }
+
+    @keyframes fadeInRow {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .asistente-num {
+      width: 32px;
+      height: var(--touch);
+      background: var(--card-inner);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .asistente-input-wrap {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .btn-remove-row {
+      width: var(--touch);
+      height: var(--touch);
+      background: var(--red-bg);
+      border: 1px solid var(--red-border);
+      color: var(--red);
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .btn-remove-row:hover {
+      background: var(--red);
+      color: #ffffff;
+      transform: scale(1.05);
+    }
+
+    .btn-add-persona {
+      width: 100%;
+      height: 46px;
+      background: rgba(250, 196, 21, 0.08);
+      border: 1.5px dashed var(--primary);
+      border-radius: 12px;
+      color: var(--primary);
+      font-family: 'Inter', sans-serif;
+      font-size: 13.5px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-add-persona:hover {
+      background: rgba(250, 196, 21, 0.16);
+      transform: translateY(-1px);
+    }
+
+    /* GRID FORMULARIO IGLESIA */
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 14px;
+    }
+
+    @media (max-width: 600px) {
+      .form-grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .field-hint {
+      display: block;
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-top: 5px;
+      line-height: 1.4;
+    }
+
+    /* SECCIÓN COBRO & TOTAL GIGANTE */
+    .total-box {
+      background: linear-gradient(135deg, #101524, #0b0f19);
+      border: 2px solid var(--green-border);
+      border-radius: 18px;
+      padding: 24px 20px;
+      text-align: center;
+      box-shadow: 0 0 35px rgba(34, 197, 94, 0.15);
+      margin-bottom: 20px;
+    }
+
+    .total-label {
+      font-size: 12.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .total-amount-display {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 42px;
+      font-weight: 900;
+      color: var(--green);
+      letter-spacing: 1px;
+      line-height: 1.1;
+      text-shadow: 0 0 25px var(--green-glow);
+    }
+
+    .total-breakdown {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 6px;
+      font-weight: 500;
+    }
+
+    .total-breakdown strong {
+      color: var(--text);
+    }
+
+    /* CHECKBOX ENTREGAR PULSERA */
+    .checkbox-card {
+      background: var(--card-inner);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      user-select: none;
+      transition: border-color 0.15s ease;
+      margin-bottom: 22px;
+    }
+
+    .checkbox-card:hover {
+      border-color: var(--primary);
+    }
+
+    .checkbox-card input[type="checkbox"] {
+      width: 24px;
+      height: 24px;
+      accent-color: var(--green);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .checkbox-text {
+      flex: 1;
+    }
+
+    .checkbox-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      display: block;
+    }
+
+    .checkbox-desc {
+      font-size: 12px;
+      color: var(--muted);
+      display: block;
+      margin-top: 2px;
+    }
+
+    /* BOTÓN CONFIRMAR COBRO */
+    .btn-confirm-cash {
+      width: 100%;
+      height: 60px;
+      background: linear-gradient(135deg, #22c55e, #15803d);
+      color: #000000;
+      border: none;
+      border-radius: 14px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 17px;
+      font-weight: 900;
+      letter-spacing: 1.2px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 0 30px var(--green-glow);
+      transition: all 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-confirm-cash:hover {
+      background: linear-gradient(135deg, #2ae26d, #16a34a);
+      transform: translateY(-2px);
+      box-shadow: 0 0 40px rgba(34, 197, 94, 0.55);
+    }
+
+    .btn-confirm-cash:active {
+      transform: scale(0.99);
+    }
+
+    .btn-confirm-cash:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* SPINNER */
+    .spinner-btn {
+      width: 22px;
+      height: 22px;
+      border: 3px solid rgba(0, 0, 0, 0.2);
+      border-top-color: #000000;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ===== MODAL DE ÉXITO POST-COBRO ===== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 300;
+      padding: 16px;
+      overflow-y: auto;
+      animation: fadeInModal 0.2s ease-out;
+    }
+
+    .modal-backdrop.hidden {
+      display: none;
+    }
+
+    @keyframes fadeInModal {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-card {
+      background: var(--card);
+      border: 2px solid var(--green-border);
+      border-radius: 22px;
+      padding: 30px 24px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 45px var(--green-glow);
+      text-align: center;
+      position: relative;
+    }
+
+    .modal-icon-success {
+      width: 72px;
+      height: 72px;
+      background: var(--green-bg);
+      border: 2px solid var(--green);
+      border-radius: 50%;
+      font-size: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      box-shadow: 0 0 30px var(--green-glow);
+    }
+
+    .modal-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .modal-sub {
+      font-size: 13.5px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    /* RESUMEN COBRO BOX */
+    .receipt-box {
+      background: var(--card-inner);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      text-align: left;
+      margin-bottom: 18px;
+    }
+
+    .receipt-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 13.5px;
+    }
+
+    .receipt-row:last-child {
+      border-bottom: none;
+    }
+
+    .receipt-row .r-label {
+      color: var(--muted);
+    }
+
+    .receipt-row .r-val {
+      font-weight: 700;
+      color: var(--text);
+      text-align: right;
+    }
+
+    .receipt-row .r-val-money {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 16px;
+      color: var(--green);
+      font-weight: 900;
+    }
+
+    .receipt-personas-list {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border);
+    }
+
+    .receipt-personas-list p {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .receipt-asistente-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #111420;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      border: 1px solid var(--border);
+    }
+
+    /* ALERTAS DESTACADAS: LIBRO DE REGALO / PULSERA ROJA */
+    .alert-special-banner {
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 14px;
+      text-align: left;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      animation: alertPulse 2s infinite ease-in-out;
+    }
+
+    @keyframes alertPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.015); }
+    }
+
+    .alert-libro {
+      background: rgba(250, 196, 21, 0.15);
+      border: 2px solid var(--primary);
+      box-shadow: 0 0 25px var(--primary-glow);
+    }
+
+    .alert-libro .a-icon {
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .alert-libro .a-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 13.5px;
+      font-weight: 900;
+      color: var(--primary);
+      letter-spacing: 0.5px;
+      margin-bottom: 3px;
+    }
+
+    .alert-libro .a-desc {
+      font-size: 12px;
+      color: #fef08a;
+      line-height: 1.35;
+    }
+
+    .alert-roja {
+      background: rgba(239, 68, 68, 0.16);
+      border: 2px solid var(--red);
+      box-shadow: 0 0 25px var(--red-border);
+    }
+
+    .alert-roja .a-icon {
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .alert-roja .a-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 13.5px;
+      font-weight: 900;
+      color: var(--red);
+      letter-spacing: 0.5px;
+      margin-bottom: 3px;
+    }
+
+    .alert-roja .a-desc {
+      font-size: 12px;
+      color: #fca5a5;
+      line-height: 1.35;
+    }
+
+    /* ESTADO EMAIL */
+    .receipt-email-status {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    /* BOTONES MODAL */
+    .modal-actions-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .btn-next-sale {
+      height: 54px;
+      background: linear-gradient(135deg, var(--primary), #eab308);
+      color: #000000;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 0 20px var(--primary-glow);
+    }
+
+    .btn-next-sale:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 28px rgba(250, 196, 21, 0.45);
+    }
+
+    .btn-whatsapp-share {
+      height: 48px;
+      background: #128c7e;
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-whatsapp-share:hover {
+      background: #25d366;
+      color: #000000;
+    }
+
+    /* TOAST */
+    #toastContainer {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    .toast {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-size: 13.5px;
+      font-weight: 600;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+      text-align: center;
+      animation: toastIn 0.25s ease-out;
+      pointer-events: auto;
+    }
+
+    .toast.success {
+      border-color: var(--green);
+      color: var(--green);
+      background: #0f1c18;
+    }
+
+    .toast.error {
+      border-color: var(--red);
+      color: var(--red);
+      background: #200f13;
+    }
+
+    .toast.warning {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: #1e1a0e;
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 600px) {
+      .header-inner {
+        padding: 8px 12px;
+      }
+      .brand-title {
+        font-size: 11.5px;
+      }
+      .stat-turn-chip .stat-val {
+        font-size: 12px;
+      }
+      .stat-turn-chip {
+        padding: 4px 8px;
+      }
+      .total-amount-display {
+        font-size: 34px;
+      }
+      .section-card {
+        padding: 16px;
+      }
+      .btn-confirm-cash {
+        font-size: 15px;
+        height: 54px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== PANTALLA 1: LOGIN ==================== -->
+  <div id="loginScreen">
+    <div class="login-card">
+      <div class="login-badge">💳 Acceso Restringido</div>
+      <div class="login-logo">💵</div>
+      <h1>TERMINAL CAJERO</h1>
+      <p class="sub">Cobro en Efectivo & Pulseras en Puerta</p>
+
+      <form id="cajeroLoginForm" onsubmit="handleCajeroLogin(event)">
+        <div class="field-group">
+          <label class="field-label" for="loginColab">Nombre del Colaborador / Cajero *</label>
+          <input class="field-input" id="loginColab" type="text" placeholder="Ej: Juan — Mesa 1" autocomplete="name" required autofocus />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="loginPass">Contraseña Maestra de Autorización *</label>
+          <div class="pass-wrap">
+            <input class="field-input" id="loginPass" type="password" placeholder="••••••••" autocomplete="current-password" required />
+            <button type="button" class="toggle-pass-btn" onclick="togglePasswordVisibility('loginPass')" aria-label="Mostrar contraseña">👁</button>
+          </div>
+        </div>
+
+        <div class="login-error" id="loginErrorMsg"></div>
+
+        <button type="submit" class="btn-login" id="btnLoginSubmit">
+          INICIAR TURNO DE CAJERO ➜
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== PANTALLA 2: TERMINAL DE COBRO ==================== -->
+  <div id="cajeroApp" class="hidden">
+    <!-- Header Fijo -->
+    <header class="cajero-header">
+      <div class="header-inner">
+        <div class="header-brand">
+          <div class="brand-icon">💵</div>
+          <div class="brand-text">
+            <div class="brand-title">
+              TERMINAL CAJERO <span class="live-dot" title="Turno Activo"></span>
+            </div>
+            <div class="brand-user" id="cajeroColabDisplay">👤 Colaborador</div>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <!-- Total Recaudado en vivo -->
+          <div class="stat-turn-chip" title="Total recaudado en este turno/sesión">
+            <span class="stat-val" id="turnTotalDisplay">$0</span>
+            <span class="stat-sub" id="turnEntradasDisplay">0 entradas</span>
+          </div>
+
+          <!-- Volver a Index -->
+          <button type="button" class="nav-btn" onclick="goToAcreditacion()" title="Abrir o volver al Control de Pulseras">
+            🎫 Acreditación
+          </button>
+
+          <!-- Salir / Cerrar Turno -->
+          <button type="button" class="nav-btn nav-btn-danger" onclick="confirmLogoutCajero()" title="Cerrar sesión de cajero">
+            🚪
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="cajero-main">
+
+      <!-- TARJETA 1: ASISTENTES DINÁMICOS -->
+      <section class="section-card">
+        <div class="section-header">
+          <div class="section-title">
+            👥 Asistentes del Grupo
+          </div>
+          <div class="badge-count" id="badgePersonCount">1 persona</div>
+        </div>
+
+        <div class="asistentes-list" id="asistentesList">
+          <!-- Fila inicial Asistente 1 -->
+          <div class="asistente-row" id="asistenteRow-1">
+            <div class="asistente-num">1</div>
+            <div class="asistente-input-wrap">
+              <input type="text" class="field-input input-persona" id="asistenteInput-1"
+                placeholder="Nombre y Apellido del Asistente 1 *"
+                autocomplete="off" autocorrect="off" autocapitalize="words" required />
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="btn-add-persona" onclick="agregarFilaAsistente()">
+          ➕ Agregar otra persona al grupo
+        </button>
+      </section>
+
+      <!-- TARJETA 2: IGLESIA Y CONTACTO -->
+      <section class="section-card">
+        <div class="section-header">
+          <div class="section-title">
+            ⛪ Congregación & Contacto
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="field-group">
+            <label class="field-label" for="pastorInput">Pastor / Iglesia *</label>
+            <input type="text" class="field-input" id="pastorInput"
+              placeholder="Ej: Pr. Carlos Cabrera / Central"
+              autocomplete="off" autocorrect="off" autocapitalize="words" required />
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="ciudadInput">Ciudad (Opcional)</label>
+            <input type="text" class="field-input" id="ciudadInput"
+              placeholder="Ej: Rosario, Santa Fe"
+              autocomplete="off" autocorrect="off" autocapitalize="words" />
+          </div>
+        </div>
+
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" for="emailInput">Correo Electrónico (Opcional — Comprobante)</label>
+          <input type="email" class="field-input" id="emailInput"
+            placeholder="ejemplo@correo.com (uno solo para el grupo)"
+            autocomplete="email" />
+          <span class="field-hint">
+            📧 Si se ingresa, se enviará el comprobante oficial al comprador con copia automática a facturación.
+          </span>
+        </div>
+      </section>
+
+      <!-- TARJETA 3: LIQUIDACIÓN Y CONFIRMACIÓN DE COBRO -->
+      <section class="section-card">
+        <div class="section-header">
+          <div class="section-title">
+            💰 Liquidación & Cobro
+          </div>
+          <div class="badge-count" style="color: var(--green); border-color: var(--green-border);">
+            $30.000 c/u
+          </div>
+        </div>
+
+        <!-- Display Gigante -->
+        <div class="total-box">
+          <div class="total-label">Total a Cobrar en Efectivo</div>
+          <div class="total-amount-display" id="totalAmountDisplay">$30.000</div>
+          <div class="total-breakdown" id="totalBreakdownDisplay">
+            <strong>1</strong> persona × $30.000
+          </div>
+        </div>
+
+        <!-- Checkbox Auto-Acreditar Pulseras -->
+        <label class="checkbox-card" for="checkAutoAcreditar">
+          <input type="checkbox" id="checkAutoAcreditar" checked />
+          <div class="checkbox-text">
+            <span class="checkbox-title">Marcar pulseras como entregadas en mano ahora</span>
+            <span class="checkbox-desc">Las personas reciben físicamente su pulsera en la mesa de entrada.</span>
+          </div>
+        </label>
+
+        <!-- Botón Gigante de Cobro -->
+        <button type="button" class="btn-confirm-cash" id="btnConfirmCash" onclick="procesarCobroEfectivo()">
+          <span>💵 CONFIRMAR COBRO EN EFECTIVO ($30.000)</span>
+        </button>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ==================== MODAL DE ÉXITO POST-COBRO ==================== -->
+  <div class="modal-backdrop hidden" id="modalExito">
+    <div class="modal-card">
+      <div class="modal-icon-success">✅</div>
+      <h2 class="modal-title">¡Cobro Registrado con Éxito!</h2>
+      <p class="modal-sub">El registro fue guardado correctamente en la planilla oficial.</p>
+
+      <!-- ALERTAS CONDICIONALES -->
+      <div id="alertLibroBox" class="alert-special-banner alert-libro hidden">
+        <div class="a-icon">🎁</div>
+        <div>
+          <div class="a-title">¡ATENCIÓN: ENTREGAR LIBRO DE REGALO!</div>
+          <div class="a-desc">Este asistente/grupo tiene libro de regalo asignado. Entrégaselo en mano ahora.</div>
+        </div>
+      </div>
+
+      <div id="alertRojaBox" class="alert-special-banner alert-roja hidden">
+        <div class="a-icon">🔴</div>
+        <div>
+          <div class="a-title">¡ATENCIÓN: CORRESPONDE PULSERA ROJA!</div>
+          <div class="a-desc">Este asistente debe portar la pulsera roja oficial para su acceso especial.</div>
+        </div>
+      </div>
+
+      <!-- Resumen de la Venta -->
+      <div class="receipt-box">
+        <div class="receipt-row">
+          <span class="r-label">Total Cobrado:</span>
+          <span class="r-val r-val-money" id="recTotalMonto">$0</span>
+        </div>
+        <div class="receipt-row">
+          <span class="r-label">Cantidad de Asistentes:</span>
+          <span class="r-val" id="recCantidad">0</span>
+        </div>
+        <div class="receipt-row">
+          <span class="r-label">Pastor / Iglesia:</span>
+          <span class="r-val" id="recPastor">-</span>
+        </div>
+        <div class="receipt-row">
+          <span class="r-label">Pulseras Físicas:</span>
+          <span class="r-val" id="recPulserasStatus" style="color: var(--green);">Entregadas en mano ✅</span>
+        </div>
+
+        <div class="receipt-personas-list">
+          <p>Asistentes Registrados:</p>
+          <div id="recListaPersonas"></div>
+        </div>
+      </div>
+
+      <!-- Notificación de Email -->
+      <div class="receipt-email-status" id="recEmailStatus">
+        📧 Comprobante digital verificado.
+      </div>
+
+      <!-- Botones de Acción del Modal -->
+      <div class="modal-actions-col">
+        <button type="button" class="btn-next-sale" id="btnNextSale" onclick="prepararSiguienteCobro()">
+          ➕ Siguiente Cobro
+        </button>
+
+        <a id="btnShareWhatsapp" class="btn-whatsapp-share" href="#" target="_blank" rel="noopener noreferrer">
+          📲 Enviar Comprobante por WhatsApp
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenedor de Toasts -->
+  <div id="toastContainer"></div>
+
+  <!-- ==================== SCRIPTS & LÓGICA DE CAJERO ==================== -->
+  <script>
+    // ===== CONSTANTES Y CONFIGURACIÓN =====
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyAE3jF4ozWV7qaTXrijI6ocb9g_n9mvCvq_OXnDkBV6bVri_-mPTBZHV7kP-nfjNSr/exec";
+    const EVENTO_CLAVE = "EXTHOMBRES";
+    const TOKEN_AUTH = "ACRED_EXTIENDETE_2026";
+    const PASS_MAESTRA = "IARAHACKER26";
+    const PRECIO_UNITARIO = 30000;
+    const INACTIVITY_LIMIT_MS = 30 * 60 * 1000; // 30 minutos
+
+    // Variables de Estado en Memoria
+    let sessionColab = "";
+    let sessionAuth = "";
+    let totalRecaudadoSesion = 0;
+    let totalEntradasSesion = 0;
+    let inactivityTimer = null;
+    let contadorFilas = 1;
+    let ultimoCobroRealizado = null; // Para generar el WhatsApp
+
+    // ===== INICIALIZACIÓN AL CARGAR =====
+    document.addEventListener("DOMContentLoaded", () => {
+      verificarSesionInicial();
+    });
+
+    function verificarSesionInicial() {
+      const savedColab = sessionStorage.getItem("cajero_colab");
+      const savedAuth = sessionStorage.getItem("cajero_auth");
+      const savedMonto = parseInt(sessionStorage.getItem("cajero_total_monto") || "0", 10);
+      const savedEntradas = parseInt(sessionStorage.getItem("cajero_total_entradas") || "0", 10);
+
+      if (savedColab && savedAuth === PASS_MAESTRA) {
+        sessionColab = savedColab;
+        sessionAuth = savedAuth;
+        totalRecaudadoSesion = isNaN(savedMonto) ? 0 : savedMonto;
+        totalEntradasSesion = isNaN(savedEntradas) ? 0 : savedEntradas;
+
+        mostrarTerminal();
+      } else {
+        mostrarLogin();
+      }
+    }
+
+    // ===== CONTROL DE SESIÓN =====
+    function mostrarLogin() {
+      if (inactivityTimer) clearTimeout(inactivityTimer);
+      document.getElementById("loginScreen").classList.remove("hidden");
+      document.getElementById("cajeroApp").classList.add("hidden");
+      document.getElementById("loginPass").value = "";
+      document.getElementById("loginErrorMsg").textContent = "";
+      setTimeout(() => {
+        const inputColab = document.getElementById("loginColab");
+        if (inputColab) inputColab.focus();
+      }, 200);
+    }
+
+    function mostrarTerminal() {
+      document.getElementById("loginScreen").classList.add("hidden");
+      document.getElementById("cajeroApp").classList.remove("hidden");
+      document.getElementById("cajeroColabDisplay").textContent = `👤 Cajero: ${sessionColab}`;
+
+      actualizarContadorTurno();
+      iniciarTrackerInactividad();
+      actualizarTotales();
+
+      setTimeout(() => {
+        const firstInput = document.getElementById("asistenteInput-1");
+        if (firstInput) firstInput.focus();
+      }, 250);
+    }
+
+    function handleCajeroLogin(event) {
+      event.preventDefault();
+      const colabInput = document.getElementById("loginColab").value.trim();
+      const passInput = document.getElementById("loginPass").value.trim().toUpperCase();
+      const errorEl = document.getElementById("loginErrorMsg");
+
+      errorEl.textContent = "";
+
+      if (!colabInput) {
+        errorEl.textContent = "⚠️ Ingresa tu nombre para identificarte en las planillas.";
+        document.getElementById("loginColab").focus();
+        return;
+      }
+
+      if (passInput !== PASS_MAESTRA) {
+        errorEl.textContent = "❌ Contraseña Maestra de autorización incorrecta.";
+        document.getElementById("loginPass").value = "";
+        document.getElementById("loginPass").focus();
+        return;
+      }
+
+      // Guardar en sessionStorage
+      sessionColab = colabInput;
+      sessionAuth = passInput;
+      sessionStorage.setItem("cajero_colab", sessionColab);
+      sessionStorage.setItem("cajero_auth", sessionAuth);
+
+      if (!sessionStorage.getItem("cajero_total_monto")) {
+        sessionStorage.setItem("cajero_total_monto", "0");
+        sessionStorage.setItem("cajero_total_entradas", "0");
+        totalRecaudadoSesion = 0;
+        totalEntradasSesion = 0;
+      } else {
+        totalRecaudadoSesion = parseInt(sessionStorage.getItem("cajero_total_monto") || "0", 10);
+        totalEntradasSesion = parseInt(sessionStorage.getItem("cajero_total_entradas") || "0", 10);
+      }
+
+      mostrarToast(`Bienvenido/a ${sessionColab} al modo Cajero.`, "success");
+      mostrarTerminal();
+    }
+
+    function togglePasswordVisibility(inputId) {
+      const inp = document.getElementById(inputId);
+      if (inp) {
+        inp.type = inp.type === "password" ? "text" : "password";
+      }
+    }
+
+    function confirmLogoutCajero() {
+      if (confirm(`¿Cerrar turno de cajero (${sessionColab})?\nRecaudado en la sesión: $${totalRecaudadoSesion.toLocaleString('es-AR')} (${totalEntradasSesion} entradas)`)) {
+        cerrarSesionCajero("manual");
+      }
+    }
+
+    function cerrarSesionCajero(razon) {
+      if (inactivityTimer) clearTimeout(inactivityTimer);
+      sessionStorage.removeItem("cajero_colab");
+      sessionStorage.removeItem("cajero_auth");
+      sessionStorage.removeItem("cajero_total_monto");
+      sessionStorage.removeItem("cajero_total_entradas");
+
+      sessionColab = "";
+      sessionAuth = "";
+      totalRecaudadoSesion = 0;
+      totalEntradasSesion = 0;
+
+      mostrarLogin();
+
+      if (razon === "inactividad") {
+        mostrarToast("⏳ Sesión cerrada por inactividad (30 min).", "warning");
+      } else {
+        mostrarToast("Turno de cajero cerrado.", "info");
+      }
+    }
+
+    function iniciarTrackerInactividad() {
+      const reset = () => {
+        if (inactivityTimer) clearTimeout(inactivityTimer);
+        inactivityTimer = setTimeout(() => {
+          cerrarSesionCajero("inactividad");
+        }, INACTIVITY_LIMIT_MS);
+      };
+
+      const eventos = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'pointerdown', 'click'];
+      eventos.forEach(evt => {
+        window.addEventListener(evt, reset, { passive: true });
+      });
+
+      reset();
+    }
+
+    function goToAcreditacion() {
+      if (window.opener && !window.opener.closed) {
+        window.opener.focus();
+      } else {
+        window.location.href = "index.html";
+      }
+    }
+
+    // ===== LÓGICA DE ASISTENTES DINÁMICOS =====
+    function agregarFilaAsistente() {
+      contadorFilas++;
+      const idFila = contadorFilas;
+      const listContainer = document.getElementById("asistentesList");
+
+      const rowDiv = document.createElement("div");
+      rowDiv.className = "asistente-row";
+      rowDiv.id = `asistenteRow-${idFila}`;
+
+      rowDiv.innerHTML = `
+        <div class="asistente-num">${document.querySelectorAll('.asistente-row').length + 1}</div>
+        <div class="asistente-input-wrap">
+          <input type="text" class="field-input input-persona" id="asistenteInput-${idFila}"
+            placeholder="Nombre y Apellido del Asistente *"
+            autocomplete="off" autocorrect="off" autocapitalize="words" required />
+        </div>
+        <button type="button" class="btn-remove-row" onclick="eliminarFilaAsistente(${idFila})" title="Quitar persona">
+          ✕
+        </button>
+      `;
+
+      listContainer.appendChild(rowDiv);
+      renumerarAsistentes();
+      actualizarTotales();
+
+      // Foco automático en la nueva fila creada
+      setTimeout(() => {
+        const inp = document.getElementById(`asistenteInput-${idFila}`);
+        if (inp) inp.focus();
+      }, 100);
+    }
+
+    function eliminarFilaAsistente(idFila) {
+      const row = document.getElementById(`asistenteRow-${idFila}`);
+      if (row) {
+        row.remove();
+        renumerarAsistentes();
+        actualizarTotales();
+      }
+    }
+
+    function renumerarAsistentes() {
+      const rows = document.querySelectorAll(".asistente-row");
+      rows.forEach((row, index) => {
+        const numDiv = row.querySelector(".asistente-num");
+        if (numDiv) numDiv.textContent = index + 1;
+        const input = row.querySelector(".input-persona");
+        if (input && index === 0) {
+          input.placeholder = "Nombre y Apellido del Asistente 1 *";
+        } else if (input) {
+          input.placeholder = `Nombre y Apellido del Asistente ${index + 1} *`;
+        }
+      });
+    }
+
+    function obtenerNombresAsistentes() {
+      const inputs = document.querySelectorAll(".input-persona");
+      const nombres = [];
+      inputs.forEach(inp => {
+        const val = inp.value.trim();
+        if (val) nombres.push(val);
+      });
+      return nombres;
+    }
+
+    // ===== CÁLCULO DE TOTALES EN VIVO =====
+    function actualizarTotales() {
+      const cantidad = document.querySelectorAll(".asistente-row").length;
+      const totalMonto = cantidad * PRECIO_UNITARIO;
+
+      // Badge de cantidad
+      const badge = document.getElementById("badgePersonCount");
+      if (badge) {
+        badge.textContent = `${cantidad} ${cantidad === 1 ? 'persona' : 'personas'}`;
+      }
+
+      // Display Gigante
+      const displayTotal = document.getElementById("totalAmountDisplay");
+      if (displayTotal) {
+        displayTotal.textContent = `$${totalMonto.toLocaleString('es-AR')}`;
+      }
+
+      // Desglose
+      const breakdown = document.getElementById("totalBreakdownDisplay");
+      if (breakdown) {
+        breakdown.innerHTML = `<strong>${cantidad}</strong> ${cantidad === 1 ? 'persona' : 'personas'} × $${PRECIO_UNITARIO.toLocaleString('es-AR')}`;
+      }
+
+      // Botón Confirmar
+      const btnConfirm = document.getElementById("btnConfirmCash");
+      if (btnConfirm) {
+        btnConfirm.innerHTML = `<span>💵 CONFIRMAR COBRO EN EFECTIVO ($${totalMonto.toLocaleString('es-AR')})</span>`;
+      }
+    }
+
+    function actualizarContadorTurno() {
+      const displayMonto = document.getElementById("turnTotalDisplay");
+      const displayEntradas = document.getElementById("turnEntradasDisplay");
+
+      if (displayMonto) {
+        displayMonto.textContent = `$${totalRecaudadoSesion.toLocaleString('es-AR')}`;
+      }
+      if (displayEntradas) {
+        displayEntradas.textContent = `${totalEntradasSesion} ${totalEntradasSesion === 1 ? 'entrada' : 'entradas'}`;
+      }
+    }
+
+    // ===== PROCESAMIENTO Y ENVÍO A APPS SCRIPT =====
+    async function procesarCobroEfectivo() {
+      const nombres = obtenerNombresAsistentes();
+      const totalFilas = document.querySelectorAll(".asistente-row").length;
+      const pastor = document.getElementById("pastorInput").value.trim();
+      const ciudad = document.getElementById("ciudadInput").value.trim();
+      const email = document.getElementById("emailInput").value.trim();
+      const autoAcreditar = document.getElementById("checkAutoAcreditar").checked;
+      const btnConfirm = document.getElementById("btnConfirmCash");
+
+      // Validaciones en cliente
+      if (nombres.length === 0) {
+        mostrarToast("⚠️ Debes ingresar al menos el nombre de una persona.", "warning");
+        const firstInp = document.querySelector(".input-persona");
+        if (firstInp) firstInp.focus();
+        return;
+      }
+
+      if (nombres.length < totalFilas) {
+        mostrarToast("⚠️ Completa los nombres de todos los asistentes agregados o quita las filas vacías.", "warning");
+        return;
+      }
+
+      if (!pastor) {
+        mostrarToast("⚠️ Ingresa el nombre del Pastor / Iglesia.", "warning");
+        document.getElementById("pastorInput").focus();
+        return;
+      }
+
+      if (email && (!email.includes("@") || !email.includes("."))) {
+        mostrarToast("⚠️ El formato del correo electrónico es inválido.", "warning");
+        document.getElementById("emailInput").focus();
+        return;
+      }
+
+      const totalMonto = nombres.length * PRECIO_UNITARIO;
+
+      // Deshabilitar botón con spinner
+      btnConfirm.disabled = true;
+      btnConfirm.innerHTML = `<div class="spinner-btn"></div> <span>Registrando cobro en servidor...</span>`;
+
+      try {
+        const payload = {
+          action: "registrarEfectivo",
+          token: TOKEN_AUTH,
+          evento: EVENTO_CLAVE,
+          authPass: sessionAuth,
+          adminPassword: sessionAuth,
+          personas: nombres,
+          pastor: pastor,
+          ciudad: ciudad,
+          email: email,
+          montoUnitario: PRECIO_UNITARIO,
+          monto: totalMonto,
+          tipo: "ENTRADA GENERAL",
+          autoAcreditar: autoAcreditar,
+          colaborador: sessionColab
+        };
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 35000);
+
+        const response = await fetch(SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify(payload),
+          signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        const rawText = await response.text();
+        let data;
+        try {
+          data = JSON.parse(rawText);
+        } catch (jsonErr) {
+          console.error("Respuesta no parseable:", rawText);
+          throw new Error("El servidor devolvió una respuesta inesperada: " + rawText.substring(0, 100));
+        }
+
+        if (data && data.ok) {
+          // Éxito: Acumular en la sesión del cajero
+          totalRecaudadoSesion += totalMonto;
+          totalEntradasSesion += nombres.length;
+          sessionStorage.setItem("cajero_total_monto", totalRecaudadoSesion.toString());
+          sessionStorage.setItem("cajero_total_entradas", totalEntradasSesion.toString());
+          actualizarContadorTurno();
+
+          // Guardar datos para WhatsApp
+          ultimoCobroRealizado = {
+            personas: nombres,
+            pastor: pastor,
+            ciudad: ciudad,
+            email: email,
+            totalMonto: totalMonto,
+            autoAcreditar: autoAcreditar,
+            colaborador: sessionColab,
+            tienePresente: !!data.tienePresente,
+            esPulseraRoja: !!data.esPulseraRoja,
+            emailEnviado: !!data.emailEnviado
+          };
+
+          // Mostrar Modal de Éxito
+          abrirModalExito(data, ultimoCobroRealizado);
+        } else {
+          mostrarToast("❌ " + (data.error || "No se pudo registrar el cobro."), "error");
+        }
+
+      } catch (err) {
+        console.error("Error en procesarCobroEfectivo:", err);
+        if (err.name === 'AbortError') {
+          mostrarToast("❌ El servidor tardó demasiado en responder (Timeout). Verifica la conexión.", "error");
+        } else {
+          mostrarToast("❌ Error de red o comunicación: " + err.message, "error");
+        }
+      } finally {
+        btnConfirm.disabled = false;
+        actualizarTotales();
+      }
+    }
+
+    // ===== MODAL DE ÉXITO =====
+    function abrirModalExito(serverData, info) {
+      document.getElementById("recTotalMonto").textContent = `$${info.totalMonto.toLocaleString('es-AR')}`;
+      document.getElementById("recCantidad").textContent = `${info.personas.length} ${info.personas.length === 1 ? 'persona' : 'personas'}`;
+      document.getElementById("recPastor").textContent = info.pastor;
+
+      const pulserasEl = document.getElementById("recPulserasStatus");
+      if (info.autoAcreditar) {
+        pulserasEl.textContent = "Entregadas en mano ✅";
+        pulserasEl.style.color = "var(--green)";
+      } else {
+        pulserasEl.textContent = "Pendientes de retiro ⏳";
+        pulserasEl.style.color = "var(--primary)";
+      }
+
+      // Lista de personas en el modal
+      const listaEl = document.getElementById("recListaPersonas");
+      listaEl.innerHTML = "";
+      info.personas.forEach((p, idx) => {
+        const item = document.createElement("div");
+        item.className = "receipt-asistente-pill";
+        item.innerHTML = `<span>👤 <strong>${idx + 1}.</strong> ${escapeHtml(p)}</span>`;
+        listaEl.appendChild(item);
+      });
+
+      // Alertas de Libro y Pulsera Roja
+      const alertLibro = document.getElementById("alertLibroBox");
+      const alertRoja = document.getElementById("alertRojaBox");
+
+      if (serverData.tienePresente) {
+        alertLibro.classList.remove("hidden");
+      } else {
+        alertLibro.classList.add("hidden");
+      }
+
+      if (serverData.esPulseraRoja) {
+        alertRoja.classList.remove("hidden");
+      } else {
+        alertRoja.classList.add("hidden");
+      }
+
+      // Estado de Email
+      const emailStatusEl = document.getElementById("recEmailStatus");
+      if (info.email) {
+        if (serverData.emailEnviado) {
+          emailStatusEl.innerHTML = `📧 Comprobante enviado exitosamente a <strong>${escapeHtml(info.email)}</strong> (con copia a facturación).`;
+          emailStatusEl.style.color = "var(--green)";
+        } else {
+          emailStatusEl.innerHTML = `📧 Comprobante procesado para <strong>${escapeHtml(info.email)}</strong>.`;
+          emailStatusEl.style.color = "var(--muted)";
+        }
+      } else {
+        emailStatusEl.innerHTML = `ℹ️ Cobro registrado sin email de comprobante.`;
+        emailStatusEl.style.color = "var(--muted)";
+      }
+
+      // WhatsApp URL
+      configurarBotonWhatsapp(info, serverData);
+
+      // Mostrar modal
+      document.getElementById("modalExito").classList.remove("hidden");
+
+      // Feedback háptico en móviles
+      if (window.navigator && window.navigator.vibrate) {
+        window.navigator.vibrate([100, 50, 100]);
+      }
+
+      // Foco en botón siguiente
+      setTimeout(() => {
+        const btnNext = document.getElementById("btnNextSale");
+        if (btnNext) btnNext.focus();
+      }, 200);
+    }
+
+    function configurarBotonWhatsapp(info, serverData) {
+      const fecha = new Date().toLocaleString("es-AR", { dateStyle: "short", timeStyle: "short" });
+      let texto = `🎟️ *COMPROBANTE DE COBRO EN EFECTIVO — EXTIÉNDETE 2026*\n`;
+      texto += `━━━━━━━━━━━━━━━━━━━━━\n`;
+      texto += `📅 *Fecha:* ${fecha}\n`;
+      texto += `💵 *Método:* Pago en Efectivo (Puerta)\n`;
+      texto += `👤 *Cajero:* ${info.colaborador || "Oficial"}\n`;
+      texto += `⛪ *Pastor / Iglesia:* ${info.pastor}\n`;
+      if (info.ciudad) texto += `📍 *Ciudad:* ${info.ciudad}\n`;
+      texto += `\n👥 *Asistentes (${info.personas.length}):*\n`;
+      info.personas.forEach((p, idx) => {
+        texto += `${idx + 1}. *${p}* ${info.autoAcreditar ? "(Pulsera Entregada ✅)" : ""}\n`;
+      });
+      texto += `\n💰 *TOTAL ABONADO:* $${info.totalMonto.toLocaleString("es-AR")}\n`;
+      if (serverData.tienePresente) {
+        texto += `🎁 *Presente Especial:* Libro de Regalo Entregado\n`;
+      }
+      if (serverData.esPulseraRoja) {
+        texto += `🔴 *Acceso:* Pulsera Roja Asignada\n`;
+      }
+      texto += `━━━━━━━━━━━━━━━━━━━━━\n`;
+      texto += `¡Muchas gracias! Nos vemos en el evento 🙌🔥`;
+
+      const shareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
+      const btnWa = document.getElementById("btnShareWhatsapp");
+      btnWa.href = shareUrl;
+    }
+
+    function prepararSiguienteCobro() {
+      // Cerrar modal
+      document.getElementById("modalExito").classList.add("hidden");
+
+      // Resetear asistentes: dejar solo 1 fila
+      const listContainer = document.getElementById("asistentesList");
+      listContainer.innerHTML = `
+        <div class="asistente-row" id="asistenteRow-1">
+          <div class="asistente-num">1</div>
+          <div class="asistente-input-wrap">
+            <input type="text" class="field-input input-persona" id="asistenteInput-1"
+              placeholder="Nombre y Apellido del Asistente 1 *"
+              autocomplete="off" autocorrect="off" autocapitalize="words" required />
+          </div>
+        </div>
+      `;
+      contadorFilas = 1;
+
+      // Limpiar campos de iglesia / contacto
+      document.getElementById("pastorInput").value = "";
+      document.getElementById("ciudadInput").value = "";
+      document.getElementById("emailInput").value = "";
+      document.getElementById("checkAutoAcreditar").checked = true;
+
+      // Actualizar visualización
+      actualizarTotales();
+
+      // Foco inmediato en el Asistente 1 para velocidad máxima
+      setTimeout(() => {
+        const inp = document.getElementById("asistenteInput-1");
+        if (inp) inp.focus();
+      }, 150);
+
+      mostrarToast("Terminal lista para el siguiente cobro.", "info");
+    }
+
+    // ===== TOASTS =====
+    function mostrarToast(mensaje, tipo = "info") {
+      const container = document.getElementById("toastContainer");
+      if (!container) return;
+
+      const toast = document.createElement("div");
+      toast.className = `toast ${tipo}`;
+      toast.textContent = mensaje;
+
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(10px)";
+        toast.style.transition = "all 0.3s ease";
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>
