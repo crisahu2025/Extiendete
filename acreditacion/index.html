@@ -623,7 +623,7 @@
       <span class="n" id="statPendientes">-</span>
       <span class="l">pendientes</span>
     </div>
-    <button class="btn-cash-register" onclick="window.open('cajero.html', '_blank')" title="Abrir Terminal de Cajero en Nueva Ventana">💵 Abrir Cajero (Ventana Nueva)</button>
+    <button class="btn-cash-register" onclick="abrirTerminalCajero()" title="Abrir Terminal de Cajero en Nueva Ventana">💵 Abrir Cajero (Ventana Nueva)</button>
     <button class="icon-btn" onclick="openCobroPuertaModal()" title="Cobro Rápido en Modal (Respaldo)" style="font-size: 15px;">📝</button>
     <button class="icon-btn" onclick="openSettings()" aria-label="Configuracion" title="Configuración">⚙️</button>
     <button class="icon-btn" onclick="cerrarSesionAcred('manual')" aria-label="Cerrar Sesion" title="Cerrar Sesión" style="color: #ef4444;">🚪</button>
@@ -950,6 +950,15 @@
     document.getElementById("headerUser").textContent = name + " · " + EVENTO_NOMBRE;
     initAcredInactivityTracker();
     loadAll();
+  }
+
+  // ===== ABRIR TERMINAL CAJERO INDEPENDIENTE (Pasa el evento y colaborador activo) =====
+  function abrirTerminalCajero() {
+    var clave = EVENTO_CLAVE || sessionStorage.getItem("acred_evento_clave") || "EXTHOMBRES";
+    var nombre = EVENTO_NOMBRE || sessionStorage.getItem("acred_evento_nombre") || "Extiendete";
+    var colab = COLAB_NAME || sessionStorage.getItem("acred_colab") || "";
+    var url = "cajero.html?evento=" + encodeURIComponent(clave) + "&nombre=" + encodeURIComponent(nombre) + "&colab=" + encodeURIComponent(colab);
+    window.open(url, "_blank");
   }
 
   // ===== COBRO EN PUERTA / ANOTAR EN EFECTIVO (Requiere contraseña IARAHACKER26) =====
