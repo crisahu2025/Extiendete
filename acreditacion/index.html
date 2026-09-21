@@ -779,29 +779,9 @@
   // ===== CONFIG — MULTI-EVENTO UNIFICADO =====
   // Un solo script maneja ambas planillas
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzmlczn050kHrd6CiJ0oOPqPdGARx9uqGEPLSL6P-ucc3ME5TEdOwlpXYP61YsAWM4Y/exec";
-  const EVENTOS = {
-    "EXTHOMBRES2026": {
-      clave: "EXTHOMBRES",
-      nombre: "Extiendete de Hombres 2026"
-    },
-    "LUMINATE2026": {
-      clave: "LUMINATE",
-      nombre: "Luminate 2026"
-    },
-    "PRE2026": {
-      clave: "PREADOLESCENTES",
-      nombre: "Extiendete Preadolescentes 2026"
-    },
-    "PREADOLESCENTES2026": {
-      clave: "PREADOLESCENTES",
-      nombre: "Extiendete Preadolescentes 2026"
-    },
-    "EXTPRE2026": {
-      clave: "PREADOLESCENTES",
-      nombre: "Extiendete Preadolescentes 2026"
-    }
-  };
-  const TOKEN = "ACRED_EXTIENDETE_2026";
+  function getAcredToken() {
+    return sessionStorage.getItem("acred_token") || "";
+  }
 
   let EVENTO_CLAVE = "EXTHOMBRES";
   let EVENTO_NOMBRE = "";
@@ -933,7 +913,7 @@
     inp.type = inp.type === "password" ? "text" : "password";
   }
 
-  function doLogin() {
+  async function doLogin() {
     var pass  = document.getElementById("passInput").value.trim().toUpperCase();
     var name  = document.getElementById("colabName").value.trim();
     var errEl = document.getElementById("loginError");
@@ -944,29 +924,49 @@
       return;
     }
 
-    var evento = EVENTOS[pass];
-    if (!evento) {
-      errEl.textContent = "Contrasena incorrecta. Intenta de nuevo.";
-      document.getElementById("passInput").value = "";
+    if (!pass) {
+      errEl.textContent = "Ingresa la contraseña del evento.";
       document.getElementById("passInput").focus();
       return;
     }
 
-    EVENTO_CLAVE = evento.clave;
-    EVENTO_NOMBRE = evento.nombre;
-    COLAB_NAME = name;
-    sessionStorage.setItem("acred_colab", name);
-    sessionStorage.setItem("acred_evento_clave", evento.clave);
-    sessionStorage.setItem("acred_evento_nombre", evento.nombre);
-    sessionStorage.setItem("acred_logged", "true");
-    sessionStorage.setItem("acred_last_activity", Date.now().toString());
-    localStorage.removeItem("acred_colab");
-    errEl.textContent = "";
-    document.getElementById("loginScreen").classList.add("hidden");
-    document.getElementById("app").classList.remove("hidden");
-    document.getElementById("headerUser").textContent = name + " · " + EVENTO_NOMBRE;
-    initAcredInactivityTracker();
-    loadAll();
+    errEl.textContent = "Validando acceso en servidor...";
+
+    try {
+      var r = await fetch(SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify({ action: "login", password: pass, colab: name })
+      });
+      var data = await r.json();
+
+      if (!data || !data.ok) {
+        errEl.textContent = (data && data.error) ? data.error : "Contraseña incorrecta. Intenta de nuevo.";
+        document.getElementById("passInput").value = "";
+        document.getElementById("passInput").focus();
+        return;
+      }
+
+      EVENTO_CLAVE = data.evento;
+      EVENTO_NOMBRE = data.nombre;
+      COLAB_NAME = name;
+      sessionStorage.setItem("acred_colab", name);
+      sessionStorage.setItem("acred_evento_clave", data.evento);
+      sessionStorage.setItem("acred_evento_nombre", data.nombre);
+      sessionStorage.setItem("acred_token", data.token);
+      sessionStorage.setItem("acred_logged", "true");
+      sessionStorage.setItem("acred_last_activity", Date.now().toString());
+      localStorage.removeItem("acred_colab");
+      errEl.textContent = "";
+      document.getElementById("loginScreen").classList.add("hidden");
+      document.getElementById("app").classList.remove("hidden");
+      document.getElementById("headerUser").textContent = name + " · " + EVENTO_NOMBRE;
+      initAcredInactivityTracker();
+      loadAll();
+    } catch (err) {
+      console.error("Error en doLogin:", err);
+      errEl.textContent = "Error de conexión al validar credenciales.";
+    }
   }
 
   // ===== ABRIR TERMINAL CAJERO INDEPENDIENTE (Pasa el evento y colaborador activo) =====
@@ -1344,7 +1344,7 @@
         var metaDetails = [];
         if (p.ciudad) metaDetails.push(esc(p.ciudad));
         if (p.pastor) metaDetails.push("Pastor: " + esc(p.pastor));
-        if (p.lider) metaDetails.push("Líder: " + esc(p.lider));
+        if (p.lider) metaDetails.push("Comprobante: " + esc(p.lider));
         if (p.tipo) metaDetails.push(esc(p.tipo));
         var metaStr = metaDetails.length > 0 ? metaDetails.join(" · ") : "General";
         metaHtml = '<div class="person-meta">' + metaStr + '</div>';
@@ -1474,7 +1474,7 @@
       var r = await fetch(SCRIPT_URL, {
         method: "POST",
         headers: { "Content-Type": "text/plain" },
-        body: JSON.stringify(Object.assign({}, body, { evento: EVENTO_CLAVE, token: TOKEN })),
+        body: JSON.stringify(Object.assign({}, body, { evento: EVENTO_CLAVE, token: getAcredToken() })),
         signal: controller.signal
       });
       clearTimeout(timeoutId);

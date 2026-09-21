@@ -1469,10 +1469,15 @@
 
   <!-- ==================== SCRIPTS & LÓGICA DE CAJERO ==================== -->
   <script>
-    // ===== CONSTANTES Y CONFIGURACIÓN =====
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzmlczn050kHrd6CiJ0oOPqPdGARx9uqGEPLSL6P-ucc3ME5TEdOwlpXYP61YsAWM4Y/exec";
-    const TOKEN_AUTH = "ACRED_EXTIENDETE_2026";
-    const PASS_MAESTRA = "IARAHACKER26";
+    const PASS_HASH_MAESTRA = "5b63849e9dc4c1532a7e78f47096dcebaf1ba858cdd90c589cdab34d7c4c9ba4";
+    async function sha256Hex(text) {
+      const msgBuffer = new TextEncoder().encode(text);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
+      return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+    function getCajeroToken() {
+      return sessionStorage.getItem("cajero_token") || "ACRED_EXTIENDETE_2026";
+    }
     const PRECIO_UNITARIO = 30000;
     const INACTIVITY_LIMIT_MS = 30 * 60 * 1000; // 30 minutos
 
@@ -1608,17 +1613,25 @@
       const savedEntradas = parseInt(sessionStorage.getItem("cajero_total_entradas") || "0", 10);
 
       // Si ya está autenticado con la contraseña maestra
-      if (savedColab && savedAuth === PASS_MAESTRA) {
-        sessionColab = savedColab;
-        sessionAuth = savedAuth;
-        sessionStorage.setItem("cajero_evento_clave", sessionEventoClave);
-        sessionStorage.setItem("cajero_evento_nombre", sessionEventoNombre);
-        sessionStorage.setItem("cajero_last_activity", Date.now().toString());
+      if (savedColab && savedAuth) {
+        sha256Hex(savedAuth).then(function(h) {
+          if (h === PASS_HASH_MAESTRA) {
+            sessionColab = savedColab;
+            sessionAuth = savedAuth;
+            sessionStorage.setItem("cajero_evento_clave", sessionEventoClave);
+            sessionStorage.setItem("cajero_evento_nombre", sessionEventoNombre);
+            sessionStorage.setItem("cajero_last_activity", Date.now().toString());
 
-        totalRecaudadoSesion = isNaN(savedMonto) ? 0 : savedMonto;
-        totalEntradasSesion = isNaN(savedEntradas) ? 0 : savedEntradas;
+            totalRecaudadoSesion = isNaN(savedMonto) ? 0 : savedMonto;
+            totalEntradasSesion = isNaN(savedEntradas) ? 0 : savedEntradas;
 
-        mostrarTerminal();
+            mostrarTerminal();
+          } else {
+            mostrarLogin();
+          }
+        }).catch(function() {
+          mostrarLogin();
+        });
       } else {
         mostrarLogin();
       }
@@ -1666,7 +1679,7 @@
       }, 250);
     }
 
-    function handleCajeroLogin(event) {
+    async function handleCajeroLogin(event) {
       event.preventDefault();
       const colabInput = document.getElementById("loginColab").value.trim();
       const passInput = document.getElementById("loginPass").value.trim().toUpperCase();
@@ -1680,7 +1693,8 @@
         return;
       }
 
-      if (passInput !== PASS_MAESTRA) {
+      const passHash = await sha256Hex(passInput);
+      if (passHash !== PASS_HASH_MAESTRA) {
         errorEl.textContent = "❌ Contraseña Maestra de autorización incorrecta.";
         document.getElementById("loginPass").value = "";
         document.getElementById("loginPass").focus();
@@ -1944,7 +1958,7 @@
       try {
         const payload = {
           action: "registrarEfectivo",
-          token: TOKEN_AUTH,
+          token: getCajeroToken(),
           evento: sessionEventoClave,
           authPass: sessionAuth,
           adminPassword: sessionAuth,
