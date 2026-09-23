@@ -1,4 +1,4 @@
-﻿# Google Apps Script & Backend Server Scripts
+# Google Apps Script & Backend Server Scripts
 *.gs
 *APPS-SCRIPT*
 *bot_logic*
@@ -7,3 +7,4 @@
 Luminate/
 bot_logic_updated.txt
 .gemini/
+test-acreditacion-qr/

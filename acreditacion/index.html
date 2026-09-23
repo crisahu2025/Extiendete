@@ -12,6 +12,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+  <!-- html5-qrcode para lector QR desde cámara móvil -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <style>
     :root {
       --bg: #09090b;             /* Negro mate profundo */
@@ -502,6 +504,117 @@
     }
     .btn-cancel-sel:hover { border-color: var(--red); color: var(--red); }
 
+    /* ===== ⭐ BOTÓN FLOTANTE QR (FAB QR) ⭐ ===== */
+    .fab-qr-btn {
+      position: fixed;
+      right: 18px;
+      bottom: calc(20px + env(safe-area-inset-bottom, 12px));
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #facc15 0%, #eab308 100%);
+      border: 3px solid #000000;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6), 0 0 22px rgba(250, 204, 21, 0.45);
+      color: #000000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 25;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), bottom 0.25s ease;
+      -webkit-tap-highlight-color: transparent;
+      animation: pulseFabQR 3s infinite;
+    }
+    .fab-qr-btn.lifted {
+      bottom: calc(88px + env(safe-area-inset-bottom, 12px));
+    }
+    .fab-qr-btn:active {
+      transform: scale(0.92);
+    }
+    .fab-qr-btn svg {
+      width: 28px;
+      height: 28px;
+    }
+    .fab-qr-btn span {
+      font-size: 8.5px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      font-family: 'Orbitron', sans-serif;
+      line-height: 1;
+      margin-top: 2px;
+    }
+    @keyframes pulseFabQR {
+      0%, 100% {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6), 0 0 16px rgba(250, 204, 21, 0.35);
+      }
+      50% {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6), 0 0 32px rgba(250, 204, 21, 0.7);
+      }
+    }
+
+    /* ===== MODAL DE CÁMARA QR (FULLSCREEN MÓVIL) ===== */
+    .qr-modal {
+      position: fixed; inset: 0;
+      background: #000;
+      z-index: 1000;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: env(safe-area-inset-top, 20px) 16px calc(24px + env(safe-area-inset-bottom, 12px));
+    }
+    .qr-modal.active { display: flex; }
+    .qr-modal-header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1010;
+    }
+    .qr-viewfinder-wrap {
+      width: 100%;
+      max-width: 350px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #qrReader {
+      width: 100% !important;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 2px solid var(--primary) !important;
+      background: #000;
+      box-shadow: 0 0 35px rgba(250, 204, 21, 0.3);
+    }
+    #qrReader video { border-radius: 18px; object-fit: cover; }
+    .qr-laser {
+      position: absolute;
+      top: 20%; left: 10%; right: 10%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--primary), #fff, var(--primary), transparent);
+      box-shadow: 0 0 15px var(--primary);
+      border-radius: 50%;
+      animation: laserSweep 2s infinite ease-in-out alternate;
+      pointer-events: none;
+      z-index: 1005;
+    }
+    @keyframes laserSweep {
+      from { top: 15%; }
+      to   { top: 85%; }
+    }
+    .qr-hint {
+      margin-top: 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.9);
+      background: rgba(20, 20, 23, 0.8);
+      padding: 6px 16px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+    }
+
     /* ===== TOAST ===== */
     .toast {
       position: fixed; bottom: 100px; left: 50%;
@@ -678,6 +791,44 @@
     </div>
   </div>
 
+  <!-- ⭐ BOTÓN FLOTANTE QR (FAB QR) ⭐ -->
+  <button class="fab-qr-btn" id="fabQrBtn" onclick="abrirEscanerQR()" aria-label="Escanear Código QR" title="Escanear Código QR">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="7" height="7"></rect>
+      <rect x="14" y="3" width="7" height="7"></rect>
+      <rect x="14" y="14" width="7" height="7"></rect>
+      <rect x="3" y="14" width="7" height="7"></rect>
+      <rect x="6" y="6" width="1" height="1" fill="currentColor"></rect>
+      <rect x="17" y="6" width="1" height="1" fill="currentColor"></rect>
+      <rect x="17" y="17" width="1" height="1" fill="currentColor"></rect>
+      <rect x="6" y="17" width="1" height="1" fill="currentColor"></rect>
+    </svg>
+    <span>QR</span>
+  </button>
+
+</div>
+
+<!-- Modal Lector de QR (Pantalla Completa Móvil) -->
+<div class="qr-modal" id="qrScannerModal">
+  <div class="qr-modal-header">
+    <button class="icon-btn" onclick="cerrarEscanerQR()" title="Cerrar">✕</button>
+    <div style="font-size: 14px; font-weight: 900; color: #fff; font-family: 'Orbitron', sans-serif; letter-spacing: 1px;">
+      LECTOR QR
+    </div>
+    <button class="icon-btn" id="btnSwitchCam" onclick="cambiarCamaraQR()" style="display: none;" title="Cambiar Cámara">🔄</button>
+  </div>
+
+  <div class="qr-viewfinder-wrap">
+    <div id="qrReader"></div>
+    <div class="qr-laser"></div>
+    <div class="qr-hint">Apunta la cámara al código QR</div>
+  </div>
+
+  <div style="width: 100%; display: flex; justify-content: center; z-index: 1010;">
+    <button class="page-btn" onclick="cerrarEscanerQR()" style="border-radius: 20px; padding: 0 24px; font-size: 13px;">
+      Cerrar cámara
+    </button>
+  </div>
 </div>
 
 <!-- Modal Cobro en Puerta / Anotar Efectivo -->
@@ -1406,6 +1557,8 @@
     var n = selectedIds.size;
     document.getElementById("fabCount").textContent = n;
     document.getElementById("fabBar").classList.toggle("visible", n > 0);
+    var qrBtn = document.getElementById("fabQrBtn");
+    if (qrBtn) qrBtn.classList.toggle("lifted", n > 0);
   }
 
   // ===== DELIVER =====
@@ -1525,6 +1678,216 @@
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#39;");
+  }
+
+  // ==============================================================
+  // ⭐ LÓGICA DEL ESCÁNER QR FLOTANTE & SÍNTESIS DE AUDIO ⭐
+  // ==============================================================
+  var html5QrCode = null;
+  var isCameraActive = false;
+  var camerasList = [];
+  var activeCamIndex = 0;
+  var ultimoCodigoLeido = "";
+  var timestampUltimoCodigo = 0;
+
+  function playBeep(type) {
+    try {
+      var AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      var ctx = new AudioCtx();
+
+      if (type === "success") {
+        // Doble tono agudo ascendente y agradable (pase válido)
+        var now = ctx.currentTime;
+        var osc1 = ctx.createOscillator();
+        var gain1 = ctx.createGain();
+        osc1.type = "sine";
+        osc1.frequency.setValueAtTime(880, now);
+        gain1.gain.setValueAtTime(0.2, now);
+        gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+        osc1.connect(gain1);
+        gain1.connect(ctx.destination);
+        osc1.start(now);
+        osc1.stop(now + 0.12);
+
+        var osc2 = ctx.createOscillator();
+        var gain2 = ctx.createGain();
+        osc2.type = "sine";
+        osc2.frequency.setValueAtTime(1320, now + 0.12);
+        gain2.gain.setValueAtTime(0.25, now + 0.12);
+        gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.32);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start(now + 0.12);
+        osc2.stop(now + 0.32);
+      } else if (type === "warning" || type === "already_delivered") {
+        // Tono grave bajo de advertencia (pulsera ya entregada)
+        var now = ctx.currentTime;
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(260, now);
+        gain.gain.setValueAtTime(0.35, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.45);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.45);
+      } else {
+        // Error descendente
+        var now = ctx.currentTime;
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = "sawtooth";
+        osc.frequency.setValueAtTime(380, now);
+        osc.frequency.exponentialRampToValueAtTime(160, now + 0.25);
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.25);
+      }
+
+      if (navigator.vibrate) {
+        if (type === "success") navigator.vibrate(80);
+        else if (type === "warning" || type === "already_delivered") navigator.vibrate([160, 90, 160]);
+        else navigator.vibrate(250);
+      }
+    } catch (e) {
+      console.warn("Audio no disponible:", e);
+    }
+  }
+
+  async function abrirEscanerQR() {
+    var modal = document.getElementById("qrScannerModal");
+    if (!modal) return;
+    modal.classList.add("active");
+
+    if (!html5QrCode) {
+      html5QrCode = new Html5Qrcode("qrReader");
+    }
+
+    try {
+      var cameras = await Html5Qrcode.getCameras();
+      if (cameras && cameras.length > 0) {
+        camerasList = cameras;
+        var backCam = cameras.find(function(c) {
+          var label = (c.label || "").toLowerCase();
+          return label.includes("back") || label.includes("trasera") || label.includes("environment");
+        });
+        activeCamIndex = backCam ? cameras.indexOf(backCam) : 0;
+
+        var switchBtn = document.getElementById("btnSwitchCam");
+        if (switchBtn) switchBtn.style.display = (cameras.length > 1) ? "flex" : "none";
+      }
+    } catch (err) {
+      console.warn("Error enumerando cámaras:", err);
+    }
+
+    var config = {
+      fps: 15,
+      qrbox: { width: 250, height: 250 },
+      aspectRatio: 1.0
+    };
+
+    try {
+      var camToUse = (camerasList.length > 0 && camerasList[activeCamIndex]) ? 
+                     camerasList[activeCamIndex].id : { facingMode: "environment" };
+      await html5QrCode.start(camToUse, config, onScanSuccess);
+      isCameraActive = true;
+    } catch (err) {
+      console.error("No se pudo iniciar la cámara:", err);
+      alert("No se pudo acceder a la cámara. Asegúrate de dar permisos en el navegador.");
+      cerrarEscanerQR();
+    }
+  }
+
+  async function cerrarEscanerQR() {
+    if (html5QrCode && isCameraActive) {
+      try {
+        await html5QrCode.stop();
+      } catch (e) {}
+      isCameraActive = false;
+    }
+    var modal = document.getElementById("qrScannerModal");
+    if (modal) modal.classList.remove("active");
+  }
+
+  async function cambiarCamaraQR() {
+    if (camerasList.length <= 1) return;
+    if (html5QrCode && isCameraActive) {
+      await html5QrCode.stop();
+      isCameraActive = false;
+    }
+    activeCamIndex = (activeCamIndex + 1) % camerasList.length;
+    abrirEscanerQR();
+  }
+
+  function onScanSuccess(decodedText) {
+    var ahora = Date.now();
+    if (decodedText === ultimoCodigoLeido && (ahora - timestampUltimoCodigo) < 3000) {
+      return;
+    }
+    ultimoCodigoLeido = decodedText;
+    timestampUltimoCodigo = ahora;
+
+    cerrarEscanerQR();
+    procesarQRDetectado(decodedText);
+  }
+
+  function procesarQRDetectado(rawText) {
+    if (!rawText) return;
+    // Extrae patrones conocidos: LUM-XXXXXXXX-XXXX, LUM-XXXX, PRE-XXXX o texto limpio
+    var match = rawText.match(/LUM-\d+-\d+/i) || rawText.match(/LUM-[A-Za-z0-9\-]+/i) || rawText.match(/PRE-[A-Za-z0-9\-]+/i);
+    var ref = match ? match[0].trim().toUpperCase() : rawText.trim().toUpperCase();
+
+    // 1. Buscar en lista local de asistentes en memoria
+    var encontrados = allPersons.filter(function(p) {
+      var pRef = (p.pagoExitoso || "").toUpperCase(); // En Luminate Col 12 tiene LUM-...
+      var pMp = (p.codigoMp || "").toUpperCase();
+      var pCod = (p.codigo || "").toUpperCase();
+      var pDni = (p.dni || "").toUpperCase();
+      var pNom = (p.nombre || "").toUpperCase();
+
+      return (ref && (pRef.includes(ref) || pMp.includes(ref) || pCod.includes(ref) || pDni === ref)) ||
+             (rawText && pNom && rawText.toUpperCase().includes(pNom));
+    });
+
+    if (encontrados.length > 0) {
+      // Filtrar el buscador con la referencia para mostrar los resultados en pantalla
+      var searchInp = document.getElementById("searchInput");
+      if (searchInp) {
+        searchInp.value = ref;
+        var clrBtn = document.getElementById("clearBtn");
+        if (clrBtn) clrBtn.classList.add("visible");
+      }
+      applyFilterAndRender();
+
+      var pendientes = encontrados.filter(function(p) { return !p.entregada; });
+      var entregados = encontrados.filter(function(p) { return p.entregada; });
+
+      if (pendientes.length > 0) {
+        playBeep("success");
+        pendientes.forEach(function(p) { selectedIds.add(String(p.id)); });
+        updateFab();
+        showToast("🟢 " + (pendientes[0].nombre || "Asistente") + " listo para acreditar", "success");
+      } else if (entregados.length > 0) {
+        playBeep("warning");
+        var prim = entregados[0];
+        showToast("⚠️ ¡PULSERA YA RETIRADA! Entregada por " + (prim.entregadaPor || "Mesa") + " (" + (prim.fechaEntrega || "-") + ")", "warning");
+      }
+    } else {
+      // Si no se encuentra en memoria, intentar buscar en el servidor
+      var searchInp = document.getElementById("searchInput");
+      if (searchInp) {
+        searchInp.value = ref;
+        var clrBtn = document.getElementById("clearBtn");
+        if (clrBtn) clrBtn.classList.add("visible");
+      }
+      buscarEnServidor(ref);
+      showToast("🔍 Buscando código en el servidor...", "warning");
+    }
   }
 </script>
 </body>
