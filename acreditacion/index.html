@@ -1091,6 +1091,7 @@
       clearTimeout(acredInactivityTimer);
       acredInactivityTimer = null;
     }
+    stopSilentSync();
     // Destrucción total de sesión en almacenamiento del navegador
     sessionStorage.clear();
     localStorage.removeItem("acred_colab");
@@ -1154,6 +1155,7 @@
       document.getElementById("headerUser").textContent = COLAB_NAME + " · " + EVENTO_NOMBRE;
       initAcredInactivityTracker();
       loadAll();
+      startSilentSync();
     }
   });
 
@@ -1213,6 +1215,7 @@
       document.getElementById("headerUser").textContent = name + " · " + EVENTO_NOMBRE;
       initAcredInactivityTracker();
       loadAll();
+      startSilentSync();
     } catch (err) {
       console.error("Error en doLogin:", err);
       errEl.textContent = "Error de conexión al validar credenciales.";
@@ -1458,6 +1461,85 @@
     await loadAll();
     btn.classList.remove("spinning"); btn.disabled = false;
     showToast("Lista actualizada ✓", "success");
+    startSilentSync(); // Reiniciar contador de sync
+  }
+
+  // ===== SINCRONIZACIÓN SILENCIOSA EN SEGUNDO PLANO (CADA 45s - 100% FRONTEND, CERO CAMBIOS EN APPS SCRIPT) =====
+  let syncTimer = null;
+  let isSyncing = false;
+
+  async function silentBackgroundSync() {
+    // Si ya hay una sincronización en curso o no hay sesión activa, no solapar
+    if (isSyncing || !sessionStorage.getItem("acred_colab") || !SCRIPT_URL) return;
+    isSyncing = true;
+
+    try {
+      var res = await callScript({ action: "listar", pagina: 1, porPagina: 9999 });
+      if (res && res.ok && Array.isArray(res.resultados)) {
+        var nuevosItems = res.resultados.map(function(p) {
+          if (!p.id) {
+            p.id = (p.hoja || (EVENTO_CLAVE === 'PREADOLESCENTES' ? 'Preadolescentes' : 'General')) + '::' + p.fila;
+          }
+          if (!p.hoja && EVENTO_CLAVE === 'PREADOLESCENTES') {
+            p.hoja = 'Preadolescentes';
+          }
+          return p;
+        }).filter(esPagoValidoYAprobado);
+
+        // Actualizar en memoria allPersons
+        allPersons = nuevosItems;
+
+        // Si una persona que el usuario tenía seleccionada fue entregada por otra puerta en este lapso:
+        // Quitarla de selectedIds para que no se entregue 2 veces
+        var huboCambioEnSeleccionados = false;
+        selectedIds.forEach(function(id) {
+          var p = allPersons.find(function(x) { return String(x.id) === String(id); });
+          if (!p || p.entregada) {
+            selectedIds.delete(id);
+            huboCambioEnSeleccionados = true;
+          }
+        });
+
+        // Recalcular estadísticas del evento en vivo
+        var entregadasCount = allPersons.filter(function(p) { return p.entregada; }).length;
+        var pendientesCount = allPersons.length - entregadasCount;
+        estadisticas = { totalEntregadas: entregadasCount, totalPendientes: pendientesCount, total: allPersons.length };
+        updateStats();
+
+        if (huboCambioEnSeleccionados) {
+          updateFab();
+          showToast("⚠️ Una de las pulseras seleccionadas fue entregada por otra puerta.", "warning");
+        }
+
+        // Respetar el trabajo del colaborador:
+        // Solo refrescar la vista si NO está escribiendo en el buscador y la cámara no está activa
+        var searchInput = document.getElementById("searchInput");
+        var estaEscribiendo = searchInput && (document.activeElement === searchInput || searchInput.value.trim().length > 0);
+        var camModal = document.getElementById("qrScannerModal");
+        var camActiva = camModal && camModal.classList.contains("active");
+
+        if (!estaEscribiendo && !camActiva) {
+          applyFilterAndRender();
+        }
+      }
+    } catch (err) {
+      console.warn("Sync silencioso en segundo plano falló:", err);
+    } finally {
+      isSyncing = false;
+    }
+  }
+
+  function startSilentSync() {
+    if (syncTimer) clearInterval(syncTimer);
+    // Cada 45 segundos en segundo plano
+    syncTimer = setInterval(silentBackgroundSync, 45000);
+  }
+
+  function stopSilentSync() {
+    if (syncTimer) {
+      clearInterval(syncTimer);
+      syncTimer = null;
+    }
   }
 
   async function buscarEnServidor(q) {
