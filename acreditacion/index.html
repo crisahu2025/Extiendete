@@ -1038,7 +1038,7 @@
   let filteredPersons = [];
   let selectedIds = new Set();
   let currentPage = 1;
-  const PER_PAGE = 50;
+  const PER_PAGE = 200;
   let currentFilter = "all";
   let searchDebounce = null;
   let isSearchMode = false;
@@ -1386,8 +1386,14 @@
   // ===== FILTRO DE BLINDAJE: DESCARTAR PAGOS PENDIENTES SIN TOCAR APPS SCRIPT =====
   function esPagoValidoYAprobado(p) {
     if (!p) return false;
-    // Efectivo o Preadolescentes nunca se filtran por pasarela online
-    if (p.hoja === "Pago-Efectivo" || p.tipo === "PREADOLESCENTE" || p.hoja === "Inscripciones" || p.hoja === "Preadolescentes") {
+    // Efectivo en puerta siempre es 100% válido y aprobado (por hoja o comprobante)
+    var isEf = (p.hoja === "Pago-Efectivo") ||
+               (p.codigoMp && String(p.codigoMp).toUpperCase().includes("EFECTIVO")) ||
+               (p.pagoExitoso && String(p.pagoExitoso).toUpperCase().includes("EFECTIVO"));
+    if (isEf) return true;
+
+    // Preadolescentes nunca se filtran por pasarela online
+    if (p.tipo === "PREADOLESCENTE" || p.hoja === "Inscripciones" || p.hoja === "Preadolescentes") {
       return true;
     }
     // Descartar si el comprobante o referencia indica explícitamente PENDIENTE
@@ -1484,6 +1490,18 @@
     var list = allPersons.slice();
     if (currentFilter === "pending") list = list.filter(function(p){ return !p.entregada; });
     if (currentFilter === "done")    list = list.filter(function(p){ return  p.entregada; });
+
+    // Ordenamiento inteligente:
+    // 1. Pulseras no entregadas primero
+    // 2. Pagos en efectivo en puerta destacados arriba de la lista
+    list.sort(function(a, b) {
+      if (a.entregada !== b.entregada) return a.entregada ? 1 : -1;
+      var aEf = (a.hoja === 'Pago-Efectivo' || (a.codigoMp && String(a.codigoMp).toUpperCase().includes("EFECTIVO")) || (a.pagoExitoso && String(a.pagoExitoso).toUpperCase().includes("EFECTIVO"))) ? 1 : 0;
+      var bEf = (b.hoja === 'Pago-Efectivo' || (b.codigoMp && String(b.codigoMp).toUpperCase().includes("EFECTIVO")) || (b.pagoExitoso && String(b.pagoExitoso).toUpperCase().includes("EFECTIVO"))) ? 1 : 0;
+      if (aEf !== bEf) return bEf - aEf;
+      return 0;
+    });
+
     filteredPersons = list;
     renderPersons(list, false);
   }
@@ -1595,6 +1613,10 @@
           badgesHtml += '<span class="person-tag" style="background:#064e3b; color:#34d399; border:1px solid #059669; font-weight:600;" title="Sin alergias declaradas">🟢 Sin alergias</span>';
         }
       } else {
+        var isEf = (p.hoja === 'Pago-Efectivo' || (p.codigoMp && String(p.codigoMp).toUpperCase().includes("EFECTIVO")) || (p.pagoExitoso && String(p.pagoExitoso).toUpperCase().includes("EFECTIVO")));
+        if (isEf) {
+          badgesHtml += '<span class="person-tag" style="background:#052e16; color:#4ade80; border:1px solid #16a34a; font-weight:800;" title="Pago registrado en puerta en efectivo">💵 EFECTIVO PUERTA</span>';
+        }
         if (p.tienePresente) {
           badgesHtml += '<span class="person-tag tag-presente" title="Corresponde Librito + Lapicera">📖 LIBRO</span>';
         }
@@ -1625,6 +1647,8 @@
         }
       } else {
         var metaDetails = [];
+        var isEf = (p.hoja === 'Pago-Efectivo' || (p.codigoMp && String(p.codigoMp).toUpperCase().includes("EFECTIVO")) || (p.pagoExitoso && String(p.pagoExitoso).toUpperCase().includes("EFECTIVO")));
+        if (isEf) metaDetails.push('<span style="color:#4ade80; font-weight:700;">Pago en Efectivo ✅</span>');
         if (p.ciudad) metaDetails.push(esc(p.ciudad));
         if (p.pastor) metaDetails.push("Pastor: " + esc(p.pastor));
         if (p.lider) metaDetails.push("Comprobante: " + esc(p.lider));
@@ -1733,6 +1757,10 @@
           badgesHtml += '<span class="person-tag" style="background:#1e293b; color:#38bdf8; border:1px solid #0ea5e9;">' + esc(p.codigo || '') + '</span>';
         }
       } else {
+        var isEf = (p.hoja === 'Pago-Efectivo' || (p.codigoMp && String(p.codigoMp).toUpperCase().includes("EFECTIVO")) || (p.pagoExitoso && String(p.pagoExitoso).toUpperCase().includes("EFECTIVO")));
+        if (isEf) {
+          badgesHtml += '<span class="person-tag" style="background:#052e16; color:#4ade80; border:1px solid #16a34a; font-weight:800;" title="Pago registrado en puerta en efectivo">💵 EFECTIVO PUERTA</span>';
+        }
         if (p.tienePresente) {
           badgesHtml += '<span class="person-tag tag-presente" title="Corresponde Librito + Lapicera">📖 LIBRO</span>';
         }
@@ -1742,6 +1770,8 @@
       }
 
       var metaDetails = [];
+      var isEf = (p.hoja === 'Pago-Efectivo' || (p.codigoMp && String(p.codigoMp).toUpperCase().includes("EFECTIVO")) || (p.pagoExitoso && String(p.pagoExitoso).toUpperCase().includes("EFECTIVO")));
+      if (isEf) metaDetails.push('<span style="color:#4ade80; font-weight:700;">Pago en Efectivo ✅</span>');
       if (p.ciudad) metaDetails.push(esc(p.ciudad));
       if (p.pastor) metaDetails.push("Pastor: " + esc(p.pastor));
       if (p.lider) metaDetails.push("Comprobante: " + esc(p.lider));
