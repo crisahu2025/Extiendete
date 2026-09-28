@@ -504,6 +504,89 @@
     }
     .btn-cancel-sel:hover { border-color: var(--red); color: var(--red); }
 
+    /* ===== BANDEJA DE SELECCIONADOS ANCLADA ARRIBA ===== */
+    .selected-tray-wrap {
+      margin: 10px 14px 14px;
+      background: linear-gradient(180deg, rgba(250, 204, 21, 0.08) 0%, rgba(20, 20, 23, 0.95) 100%);
+      border: 1.5px solid rgba(250, 204, 21, 0.45);
+      border-radius: 18px;
+      padding: 12px 14px 14px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7), 0 0 20px rgba(250, 204, 21, 0.12);
+      animation: fadeInTray 0.25s ease-out;
+    }
+    @keyframes fadeInTray {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .selected-tray-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(250, 204, 21, 0.2);
+    }
+    .selected-tray-title {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Orbitron', sans-serif;
+    }
+    .selected-tray-count-badge {
+      background: var(--primary);
+      color: #000000;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-family: 'Inter', sans-serif;
+    }
+    .selected-tray-clear {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: all 0.15s;
+    }
+    .selected-tray-clear:hover {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.12);
+    }
+    .selected-tray-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .selected-tray-remove-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+      font-size: 14px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .selected-tray-remove-btn:hover {
+      background: rgba(239, 68, 68, 0.25);
+      border-color: #ef4444;
+      transform: scale(1.08);
+    }
+
     /* ===== ⭐ BOTÓN FLOTANTE QR (FAB QR) ⭐ ===== */
     .fab-qr-btn {
       position: fixed;
@@ -760,6 +843,18 @@
     <button class="tab"        id="tabDone"    onclick="setFilter('done')">✅ Entregadas</button>
   </div>
 
+  <!-- BANDEJA DE SELECCIONADOS ANCLADA ARRIBA (PINNED TRAY) -->
+  <div id="selectedTray" class="selected-tray-wrap" style="display: none;">
+    <div class="selected-tray-header">
+      <div class="selected-tray-title">
+        <span>📌 LISTOS PARA ENTREGAR</span>
+        <span class="selected-tray-count-badge" id="trayCountBadge">0</span>
+      </div>
+      <button class="selected-tray-clear" onclick="clearSelection()" title="Desmarcar todos">✕ Limpiar selección</button>
+    </div>
+    <div id="selectedTrayList" class="selected-tray-list"></div>
+  </div>
+
   <!-- List -->
   <div class="list-container" id="listContainer">
     <div class="loading-wrap" id="loadingWrap">
@@ -1014,6 +1109,10 @@
     // Limpieza de DOM y campos de entrada
     const personList = document.getElementById("personList");
     if (personList) personList.innerHTML = "";
+    const selTray = document.getElementById("selectedTray");
+    if (selTray) selTray.style.display = "none";
+    const selTrayList = document.getElementById("selectedTrayList");
+    if (selTrayList) selTrayList.innerHTML = "";
     const passInp = document.getElementById("passInput");
     if (passInp) passInp.value = "";
     const searchInp = document.getElementById("searchInput");
@@ -1284,6 +1383,28 @@
     applyFilterAndRender();
   }
 
+  // ===== FILTRO DE BLINDAJE: DESCARTAR PAGOS PENDIENTES SIN TOCAR APPS SCRIPT =====
+  function esPagoValidoYAprobado(p) {
+    if (!p) return false;
+    // Efectivo o Preadolescentes nunca se filtran por pasarela online
+    if (p.hoja === "Pago-Efectivo" || p.tipo === "PREADOLESCENTE" || p.hoja === "Inscripciones" || p.hoja === "Preadolescentes") {
+      return true;
+    }
+    // Descartar si el comprobante o referencia indica explícitamente PENDIENTE
+    if (p.pagoExitoso && String(p.pagoExitoso).toUpperCase().includes("PENDIENTE")) {
+      return false;
+    }
+    if (p.codigoMp && String(p.codigoMp).toUpperCase() === "PENDIENTE") {
+      return false;
+    }
+    // En Pago-Online, si no tiene ID de Mercado Pago cargado (Col F), es un checkout abandonado / no pagado
+    if (p.hoja === "Pago-Online") {
+      var mpId = String(p.lider || "").trim();
+      if (!mpId || mpId === "") return false;
+    }
+    return true;
+  }
+
   // ===== DATA =====
   async function loadAll() {
     if (!SCRIPT_URL) return;
@@ -1299,9 +1420,20 @@
             p.hoja = 'Preadolescentes';
           }
           return p;
+        }).filter(esPagoValidoYAprobado);
+
+        // Limpiar de la selección IDs que ya no existan o hayan sido descartadas
+        var validIds = new Set(allPersons.map(function(x) { return String(x.id); }));
+        selectedIds.forEach(function(id) {
+          if (!validIds.has(id)) selectedIds.delete(id);
         });
-        estadisticas = res.estadisticas || { totalEntregadas: 0, totalPendientes: 0, total: (allPersons.length || 0) };
+
+        // Recalcular estadísticas precisas solo con asistentes aprobados
+        var entregadasCount = allPersons.filter(function(p) { return p.entregada; }).length;
+        var pendientesCount = allPersons.length - entregadasCount;
+        estadisticas = { totalEntregadas: entregadasCount, totalPendientes: pendientesCount, total: allPersons.length };
         updateStats();
+        updateFab();
         applyFilterAndRender();
         document.getElementById("refreshBtn").classList.add("show");
       } else {
@@ -1336,7 +1468,7 @@
             p.hoja = 'Preadolescentes';
           }
           return p;
-        });
+        }).filter(esPagoValidoYAprobado);
         // Sincronizar en allPersons para que entregarSeleccionados y toggleSelect los encuentren
         items.forEach(function(r) {
           var idx = allPersons.findIndex(function(x) { return x.id === r.id; });
@@ -1559,6 +1691,80 @@
     document.getElementById("fabBar").classList.toggle("visible", n > 0);
     var qrBtn = document.getElementById("fabQrBtn");
     if (qrBtn) qrBtn.classList.toggle("lifted", n > 0);
+    updateSelectedTray();
+  }
+
+  // ===== BANDEJA DE SELECCIONADOS ANCLADA ARRIBA (PINNED TRAY) =====
+  function updateSelectedTray() {
+    var tray = document.getElementById("selectedTray");
+    var trayList = document.getElementById("selectedTrayList");
+    var badge = document.getElementById("trayCountBadge");
+    if (!tray || !trayList) return;
+
+    if (selectedIds.size === 0) {
+      tray.style.display = "none";
+      trayList.innerHTML = "";
+      return;
+    }
+
+    badge.textContent = selectedIds.size;
+    tray.style.display = "block";
+
+    var selectedPersons = [];
+    selectedIds.forEach(function(id) {
+      var p = allPersons.find(function(x) { return String(x.id) === String(id); });
+      if (p) selectedPersons.push(p);
+    });
+
+    if (selectedPersons.length === 0) {
+      tray.style.display = "none";
+      trayList.innerHTML = "";
+      return;
+    }
+
+    var html = "";
+    selectedPersons.forEach(function(p) {
+      var pId = String(p.id || (p.hoja + "::" + p.fila));
+      var isPre = (p.hoja === 'Preadolescentes' || p.tipo === 'PREADOLESCENTE' || EVENTO_CLAVE === 'PREADOLESCENTES');
+      var badgesHtml = "";
+
+      if (isPre) {
+        if (p.codigo) {
+          badgesHtml += '<span class="person-tag" style="background:#1e293b; color:#38bdf8; border:1px solid #0ea5e9;">' + esc(p.codigo || '') + '</span>';
+        }
+      } else {
+        if (p.tienePresente) {
+          badgesHtml += '<span class="person-tag tag-presente" title="Corresponde Librito + Lapicera">📖 LIBRO</span>';
+        }
+        if (p.esPulseraRoja) {
+          badgesHtml += '<span class="person-tag tag-roja" title="Corresponde Pulsera Roja">🔴 P. ROJA</span>';
+        }
+      }
+
+      var metaDetails = [];
+      if (p.ciudad) metaDetails.push(esc(p.ciudad));
+      if (p.pastor) metaDetails.push("Pastor: " + esc(p.pastor));
+      if (p.lider) metaDetails.push("Comprobante: " + esc(p.lider));
+      if (p.tipo) metaDetails.push(esc(p.tipo));
+      var metaStr = metaDetails.length > 0 ? metaDetails.join(" · ") : "General";
+
+      var clickAction = 'onclick="toggleSelect(\'' + pId.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, "&quot;") + '\')"';
+
+      html += '<div class="person-card selected" style="margin-bottom:0; cursor:pointer;" ' + clickAction + '>' +
+        '<div class="checkbox">✓</div>' +
+        '<div class="person-info">' +
+          '<div class="person-name" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">' +
+            '<span>' + esc(p.nombre || p.nombreMenor || '') + '</span>' + badgesHtml +
+          '</div>' +
+          '<div class="person-meta">' + metaStr + '</div>' +
+        '</div>' +
+        '<div class="card-right-group">' +
+          '<button class="selected-tray-remove-btn" title="Quitar de seleccionados" onclick="event.stopPropagation(); toggleSelect(\'' + pId.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, "&quot;") + '\');">✕</button>' +
+        '</div>' +
+      '</div>';
+    });
+
+    trayList.innerHTML = html;
   }
 
   // ===== DELIVER =====
