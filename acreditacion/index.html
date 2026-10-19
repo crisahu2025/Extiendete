@@ -1563,6 +1563,16 @@
           if (idx >= 0) allPersons[idx] = r;
           else allPersons.push(r);
         });
+
+        // Ordenamiento: pulseras no entregadas primero, y pagos en efectivo al final (últimos)
+        items.sort(function(a, b) {
+          if (a.entregada !== b.entregada) return a.entregada ? 1 : -1;
+          var aEf = (a.hoja === 'Pago-Efectivo' || (a.codigoMp && String(a.codigoMp).toUpperCase().includes("EFECTIVO")) || (a.pagoExitoso && String(a.pagoExitoso).toUpperCase().includes("EFECTIVO"))) ? 1 : 0;
+          var bEf = (b.hoja === 'Pago-Efectivo' || (b.codigoMp && String(b.codigoMp).toUpperCase().includes("EFECTIVO")) || (b.pagoExitoso && String(b.pagoExitoso).toUpperCase().includes("EFECTIVO"))) ? 1 : 0;
+          if (aEf !== bEf) return aEf - bEf;
+          return 0;
+        });
+
         renderPersons(items, true);
       } else showError(esc(res.error || "Error en busqueda"));
     } catch(e) { showError("Error de conexion."); }
@@ -1575,12 +1585,12 @@
 
     // Ordenamiento inteligente:
     // 1. Pulseras no entregadas primero
-    // 2. Pagos en efectivo en puerta destacados arriba de la lista
+    // 2. Compras online primero, y cobros en efectivo en puerta últimos para no complicar la lista
     list.sort(function(a, b) {
       if (a.entregada !== b.entregada) return a.entregada ? 1 : -1;
       var aEf = (a.hoja === 'Pago-Efectivo' || (a.codigoMp && String(a.codigoMp).toUpperCase().includes("EFECTIVO")) || (a.pagoExitoso && String(a.pagoExitoso).toUpperCase().includes("EFECTIVO"))) ? 1 : 0;
       var bEf = (b.hoja === 'Pago-Efectivo' || (b.codigoMp && String(b.codigoMp).toUpperCase().includes("EFECTIVO")) || (b.pagoExitoso && String(b.pagoExitoso).toUpperCase().includes("EFECTIVO"))) ? 1 : 0;
-      if (aEf !== bEf) return bEf - aEf;
+      if (aEf !== bEf) return aEf - bEf;
       return 0;
     });
 
