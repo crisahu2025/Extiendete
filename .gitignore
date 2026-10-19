@@ -7,6 +7,7 @@
 Luminate/
 acreditacion/*.gs
 bot_logic_updated.txt
+acreditacion/cloud_backup/
 
 # Deploy & Environment
 .vercel
