@@ -1469,7 +1469,7 @@
 
   <!-- ==================== SCRIPTS & LÓGICA DE CAJERO ==================== -->
   <script>
-    const SCRIPT_URL = new URLSearchParams(window.location.search).get("script_url") || "https://script.google.com/macros/s/AKfycbzmlczn050kHrd6CiJ0oOPqPdGARx9uqGEPLSL6P-ucc3ME5TEdOwlpXYP61YsAWM4Y/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzmlczn050kHrd6CiJ0oOPqPdGARx9uqGEPLSL6P-ucc3ME5TEdOwlpXYP61YsAWM4Y/exec";
     const PASS_HASH_MAESTRA = "5b63849e9dc4c1532a7e78f47096dcebaf1ba858cdd90c589cdab34d7c4c9ba4";
     async function sha256Hex(text) {
       const msgBuffer = new TextEncoder().encode(text);

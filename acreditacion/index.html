@@ -809,7 +809,6 @@
       <span class="n" id="statPendientes">-</span>
       <span class="l">pendientes</span>
     </div>
-    <button class="icon-btn btn-cash-icon" onclick="abrirTerminalCajero()" aria-label="Terminal Cajero" title="Terminal Cajero (Efectivo)">💵</button>
     <button class="icon-btn" onclick="openSettings()" aria-label="Configuracion" title="Configuración">⚙️</button>
   </header>
 
@@ -998,7 +997,10 @@
       <button class="btn-modal-cancel" onclick="closeSettings()">Cancelar</button>
       <button class="btn-modal-save" onclick="saveSettings()">Guardar</button>
     </div>
-    <div style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 14px;">
+    <div style="margin-top: 18px; border-top: 1px solid var(--border); padding-top: 14px; display: flex; flex-direction: column; gap: 10px;">
+      <button onclick="closeSettings(); abrirTerminalCajero();" style="width: 100%; height: 46px; background: rgba(34, 197, 94, 0.14); border: 1.5px solid rgba(34, 197, 94, 0.45); border-radius: var(--r-sm); color: #4ade80; font-weight: 800; font-size: 13.5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+        💵 Abrir Terminal Cajero (Efectivo)
+      </button>
       <button onclick="closeSettings(); cerrarSesionAcred('manual');" style="width: 100%; height: 44px; background: rgba(239, 68, 68, 0.12); border: 1px solid #ef4444; border-radius: var(--r-sm); color: #ef4444; font-weight: 700; font-size: 14px; cursor: pointer;">
         🚪 Cerrar Sesión
       </button>
