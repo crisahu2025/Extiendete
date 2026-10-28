@@ -7,6 +7,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="theme-color" content="#000000" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>Acreditacion — Control de Pulseras</title>
   <link rel="icon" type="image/png" href="../favicon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -190,30 +193,17 @@
     }
     .icon-btn:active { background: #27272a; border-color: var(--primary); }
 
-    .btn-cash-register {
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      color: #000000;
-      font-family: 'Orbitron', sans-serif;
-      font-weight: 900;
-      font-size: 11.5px;
-      letter-spacing: 0.5px;
-      padding: 7px 12px;
-      border-radius: var(--r-sm);
-      border: none;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      box-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
-      transition: all 0.2s;
-      white-space: nowrap;
-      flex-shrink: 0;
-      -webkit-tap-highlight-color: transparent;
+    .btn-cash-icon {
+      background: rgba(34, 197, 94, 0.16) !important;
+      border: 1px solid rgba(34, 197, 94, 0.45) !important;
+      color: #22c55e !important;
+      font-size: 19px !important;
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.25);
     }
-    .btn-cash-register:hover {
-      background: #16a34a;
-      transform: translateY(-1px);
-      box-shadow: 0 0 20px rgba(34, 197, 94, 0.45);
+    .btn-cash-icon:hover, .btn-cash-icon:active {
+      background: rgba(34, 197, 94, 0.3) !important;
+      border-color: #22c55e !important;
+      transform: scale(0.96);
     }
 
     /* SEARCH */
@@ -819,8 +809,7 @@
       <span class="n" id="statPendientes">-</span>
       <span class="l">pendientes</span>
     </div>
-    <button class="btn-cash-register" onclick="abrirTerminalCajero()" title="Cobrar en Efectivo">💵 Cobrar Efectivo</button>
-    <button class="icon-btn" onclick="openCobroPuertaModal()" title="Cobro Rápido en Modal (Respaldo)" style="font-size: 15px;">📝</button>
+    <button class="icon-btn btn-cash-icon" onclick="abrirTerminalCajero()" aria-label="Terminal Cajero" title="Terminal Cajero (Efectivo)">💵</button>
     <button class="icon-btn" onclick="openSettings()" aria-label="Configuracion" title="Configuración">⚙️</button>
     <button class="icon-btn" onclick="cerrarSesionAcred('manual')" aria-label="Cerrar Sesion" title="Cerrar Sesión" style="color: #ef4444;">🚪</button>
   </header>
