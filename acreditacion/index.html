@@ -1347,23 +1347,18 @@
     if (e.target === this) closeSettings();
   });
 
-  // ===== SEARCH =====
+  // ===== SEARCH (100% LOCAL EN MEMORIA - CERO LLAMADAS A RED AL ESCRIBIR) =====
   document.getElementById("searchInput").addEventListener("input", function() {
     var val = this.value.trim();
     document.getElementById("clearBtn").classList.toggle("visible", val.length > 0);
-    clearTimeout(searchDebounce);
-    searchDebounce = setTimeout(function() {
-      currentPage = 1;
-      isSearchMode = val.length > 0;
-      if (isSearchMode) buscarEnServidor(val);
-      else applyFilterAndRender();
-    }, 350);
+    currentPage = 1;
+    applyFilterAndRender();
   });
 
   function clearSearch() {
     document.getElementById("searchInput").value = "";
     document.getElementById("clearBtn").classList.remove("visible");
-    currentPage = 1; isSearchMode = false;
+    currentPage = 1;
     applyFilterAndRender();
   }
 
@@ -1476,6 +1471,17 @@
           return p;
         }).filter(esPagoValidoYAprobado);
 
+        // Preservar entregas optimistas que aún estén en la cola local de despacho
+        var pendingQueue = getDeliveryQueue();
+        if (pendingQueue && pendingQueue.length > 0) {
+          var pendingSet = new Set(pendingQueue.map(function(item) { return item.hoja + "::" + item.fila; }));
+          nuevosItems.forEach(function(p) {
+            if (pendingSet.has(p.hoja + "::" + p.fila)) {
+              p.entregada = true;
+            }
+          });
+        }
+
         // Actualizar en memoria allPersons
         allPersons = nuevosItems;
 
@@ -1570,6 +1576,39 @@
 
   function applyFilterAndRender() {
     var list = allPersons.slice();
+    var qInput = document.getElementById("searchInput");
+    var qRaw = qInput ? qInput.value.trim().toLowerCase() : "";
+
+    if (qRaw.length > 0) {
+      // Búsqueda instantánea 100% en memoria local (sin tildes/acentos)
+      var qNorm = qRaw.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      list = list.filter(function(p) {
+        var nom = (p.nombre || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        var ciudad = (p.ciudad || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        var pastor = (p.pastor || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        var lider = (p.lider || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        var ref = (p.ref || p.pagoExitoso || "").toLowerCase();
+        var cod = (p.codigo || "").toLowerCase();
+        var codMp = (p.codigoMp || "").toLowerCase();
+        var dni = (p.dni || "").toLowerCase();
+        var tutor = (p.tutor || p.responsable || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        var dniTutor = (p.dniTutor || p.dniResponsable || "").toLowerCase();
+        var tel = (p.telefono || "").toLowerCase();
+
+        return nom.includes(qNorm) || 
+               ciudad.includes(qNorm) || 
+               pastor.includes(qNorm) || 
+               lider.includes(qNorm) || 
+               ref.includes(qRaw) || 
+               cod.includes(qRaw) || 
+               codMp.includes(qRaw) || 
+               dni.includes(qRaw) || 
+               tutor.includes(qNorm) || 
+               dniTutor.includes(qRaw) || 
+               tel.includes(qRaw);
+      });
+    }
+
     if (currentFilter === "pending") list = list.filter(function(p){ return !p.entregada; });
     if (currentFilter === "done")    list = list.filter(function(p){ return  p.entregada; });
 
@@ -1585,7 +1624,7 @@
     });
 
     filteredPersons = list;
-    renderPersons(list, false);
+    renderPersons(list, qRaw.length > 0);
   }
 
   // ===== WHATSAPP HELPER (PREADOLESCENTES / PADRES) =====
@@ -1879,53 +1918,125 @@
     trayList.innerHTML = html;
   }
 
-  // ===== DELIVER =====
+  // ===== COLA DESACOPLADA Y DESPACHO POR LOTES (10 EN 10) =====
+  function getDeliveryQueue() {
+    try {
+      return JSON.parse(localStorage.getItem("acred_delivery_queue") || "[]");
+    } catch (e) { return []; }
+  }
+
+  function saveDeliveryQueue(q) {
+    try {
+      localStorage.setItem("acred_delivery_queue", JSON.stringify(q));
+    } catch (e) {}
+  }
+
+  let isProcessingDeliveryQueue = false;
+
+  function encolarEntregas(personas) {
+    var q = getDeliveryQueue();
+    personas.forEach(function(p) {
+      if (!q.some(function(item) { return item.hoja === p.hoja && item.fila === p.fila; })) {
+        q.push({ hoja: p.hoja, fila: p.fila, colab: COLAB_NAME, timestamp: Date.now() });
+      }
+    });
+    saveDeliveryQueue(q);
+    procesarColaEntregas();
+  }
+
+  async function procesarColaEntregas() {
+    if (isProcessingDeliveryQueue || !SCRIPT_URL) return;
+    var q = getDeliveryQueue();
+    if (!q || q.length === 0) return;
+
+    isProcessingDeliveryQueue = true;
+
+    // Despachar en lotes de hasta 10 personas a la vez (evita colisiones y saturación)
+    var LOTE_MAX = 10;
+    var chunk = q.slice(0, LOTE_MAX);
+    var personasPayload = chunk.map(function(c) { return { hoja: c.hoja, fila: c.fila }; });
+    var colabNombre = chunk[0].colab || COLAB_NAME || "Web";
+
+    try {
+      var res = await callScript({ action: "entregar", personas: personasPayload, colaborador: colabNombre });
+      if (res && (res.ok || (res.entregadas && res.entregadas.length > 0))) {
+        var chunkSet = new Set(chunk.map(function(c) { return c.hoja + "::" + c.fila; }));
+        var nuevoQ = getDeliveryQueue().filter(function(item) {
+          return !chunkSet.has(item.hoja + "::" + item.fila);
+        });
+        saveDeliveryQueue(nuevoQ);
+        isProcessingDeliveryQueue = false;
+
+        // Si quedan más entregas en la cola, pasar al siguiente lote de 10
+        if (nuevoQ.length > 0) {
+          setTimeout(procesarColaEntregas, 250);
+        }
+        return;
+      }
+    } catch (err) {
+      console.warn("[DeliveryQueue] Error al sincronizar lote de entregas:", err);
+    }
+
+    // Reintento con jitter (espera aleatoria entre 1s y 2.5s para no chocar)
+    isProcessingDeliveryQueue = false;
+    var jitter = 1000 + Math.floor(Math.random() * 1500);
+    setTimeout(procesarColaEntregas, jitter);
+  }
+
+  // Listener para sincronizar apenas vuelva la conexión o periódicamente cada 10s
+  window.addEventListener("online", function() {
+    procesarColaEntregas();
+  });
+  setInterval(procesarColaEntregas, 10000);
+
+  // ===== DELIVER (OPTIMISTIC UI: 0 MS DE ESPERA) =====
   async function entregarSeleccionados() {
     if (!selectedIds.size) return;
-    if (!SCRIPT_URL) { showToast("Error de configuracion.", "error"); return; }
+    if (!SCRIPT_URL) { showToast("Error de configuración.", "error"); return; }
 
-    var btn = document.getElementById("btnDeliver");
-    btn.disabled = true;
-    btn.textContent = "Guardando... ⏳";
-
+    var count = selectedIds.size;
     var personas = [];
+    var tieneLibro = false;
+    var tieneRoja = false;
+    var ahoraHora = new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+
+    // ⚡ 1. ACTUALIZACIÓN OPTIMISTA EN MEMORIA (0 ms)
     selectedIds.forEach(function(id) {
       var p = allPersons.find(function(x){ return String(x.id) === String(id); });
       if (p) {
+        p.entregada = true;
+        p.entregadaPor = COLAB_NAME;
+        p.fechaEntrega = ahoraHora;
+        if (p.tienePresente) tieneLibro = true;
+        if (p.esPulseraRoja) tieneRoja = true;
+
         var hojaName = p.hoja || (EVENTO_CLAVE === "PREADOLESCENTES" ? "Preadolescentes" : "Pago-Online");
         personas.push({ hoja: hojaName, fila: p.fila });
       }
     });
 
-    try {
-      var res = await callScript({ action: "entregar", personas: personas, colaborador: COLAB_NAME });
-      if (res.ok || (res.entregadas && res.entregadas.length > 0)) {
-        var count = res.entregadas ? res.entregadas.length : personas.length;
-        var tieneLibro = false;
-        var tieneRoja = false;
-        personas.forEach(function(per) {
-          var matched = allPersons.find(function(x){ return (x.hoja || (EVENTO_CLAVE === "PREADOLESCENTES" ? "Preadolescentes" : "Pago-Online")) === per.hoja && x.fila === per.fila; });
-          if (matched && matched.tienePresente) tieneLibro = true;
-          if (matched && matched.esPulseraRoja) tieneRoja = true;
-        });
+    // Feedback auditivo y visual instantáneo
+    playBeep("success");
+    var extraAviso = "";
+    if (tieneLibro) extraAviso += " 📖 ¡ENTREGAR LIBRO!";
+    if (tieneRoja) extraAviso += " 🔴 ¡PULSERA ROJA!";
+    showToast("✅ " + count + " pulsera(s) entregada(s)!" + extraAviso, "success");
 
-        var extraAviso = "";
-        if (tieneLibro) extraAviso += " 📖 ¡ENTREGAR LIBRO!";
-        if (tieneRoja) extraAviso += " 🔴 ¡PULSERA ROJA!";
-
-        showToast("✅ " + count + " pulsera(s) entregada(s)!" + extraAviso, "success");
-        selectedIds.clear();
-        updateFab();
-        await loadAll();
-      } else {
-        showToast("Error: " + (res.error || "no se pudo guardar"), "error");
-      }
-    } catch(e) {
-      showToast("Error de conexion al guardar.", "error");
+    // Limpiar selección y re-renderizar la pantalla de inmediato
+    selectedIds.clear();
+    updateFab();
+    if (document.getElementById("selectedTrayModal")) {
+      document.getElementById("selectedTrayModal").classList.remove("active");
     }
 
-    btn.disabled = false;
-    btn.textContent = "✅ Entregar Pulsera(s)";
+    var entregadasCount = allPersons.filter(function(p) { return p.entregada; }).length;
+    var pendientesCount = allPersons.length - entregadasCount;
+    estadisticas = { totalEntregadas: entregadasCount, totalPendientes: pendientesCount, total: allPersons.length };
+    updateStats();
+    applyFilterAndRender();
+
+    // ⚡ 2. ENCOLAR Y DESPACHAR EN SEGUNDO PLANO EN LOTES DE A 10
+    encolarEntregas(personas);
   }
 
   // ===== STATS =====
